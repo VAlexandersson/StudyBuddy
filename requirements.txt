@@ -1,0 +1,6 @@
+# requirements.txt
+torch
+transformers
+sentence-transformers
+pandas
+numpy
