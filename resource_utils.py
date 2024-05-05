@@ -1,22 +1,50 @@
-import subprocess
+import os
+import signal
 import torch
+from pynvml import nvmlInit, nvmlShutdown, NVMLError, nvmlDeviceGetHandleByIndex, nvmlDeviceGetMemoryInfo, nvmlDeviceGetComputeRunningProcesses, nvmlSystemGetProcessName
 
-def get_total_gpu_memory():
-    gpu_memory_bytes = torch.cuda.get_device_properties(0).total_memory
-    gpu_memory_gb = round(gpu_memory_bytes / (2**30))
+
+
+def get_available_vram(unit: str = 'G'):
+    try:
+        nvmlInit()
+        handle = nvmlDeviceGetHandleByIndex(0)
+        memory_info = nvmlDeviceGetMemoryInfo(handle)
+        nvmlShutdown()
+        available_vram = round(memory_info.free / (2 ** {'B': 0, 'K': 10, 'M': 20, 'G': 30}.get(unit, 30)), 3)
+        return available_vram
+        
+    except NVMLError as error:
+        print(f'Failed to get available VRAM: {error}')
+
+def get_gpu_processes_usage():
+    try:
+        nvmlInit()
+        handle = nvmlDeviceGetHandleByIndex(0)
+        procs = nvmlDeviceGetComputeRunningProcesses(handle)
+        gpu_usage_values = [{"pid": proc.pid, 'memory_usage': proc.usedGpuMemory, 'name': nvmlSystemGetProcessName(proc.pid)} for proc in procs]
+        nvmlShutdown()
+        return gpu_usage_values
+    except NVMLError as error:
+        print(f'Failed to get GPU process usage: {error}')
+
+def get_total_vram():
+    nvmlInit()
+    handle = nvmlDeviceGetHandleByIndex(0)
+    gpu_memory_bytes = nvmlDeviceGetMemoryInfo(handle).total
+    nvmlShutdown()
+    gpu_memory_gb = round(gpu_memory_bytes / (2**30), 3)
     return gpu_memory_gb
 
-def get_available_vram():
-    try:
-        _output_to_list = lambda x: x.decode('ascii').split('\n')[:-1]
-        
-        ACCEPTABLE_AVAILABLE_MEMORY = 1024
-        COMMAND = "nvidia-smi --query-gpu=memory.free --format=csv"
-        memory_free_info = _output_to_list(subprocess.check_output(COMMAND.split()))[1:]
-        memory_free_values = [int(x.split()[0]) for i, x in enumerate(memory_free_info)]
-        return memory_free_values
-    except Exception as e:
-        print('"nvidia-smi" is probably not installed. ', e)
+def kill_gpu_processes(gpu_usage_values, verbose: bool = False):
+    for process in gpu_usage_values:
+        try:
+            pid = process['pid']
+            os.kill(pid, signal.SIGKILL)
+            if(verbose):
+                print(f"Killed process {pid}")
+        except OSError:
+            print(f"Failed to kill process {process['pid']}")
         
         
 def get_model_num_params(model: torch.nn.Module):
