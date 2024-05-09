@@ -24,3 +24,9 @@ SYS_PROMPT = {
     If you don't know the answer, just say "I do not know." Don't make up an answer.
     """
 }
+
+APP_CONFIG = {
+    "llm_model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "embedding_model_id": "all-mpnet-base-v2",
+    "data_path": "../data",
+}
