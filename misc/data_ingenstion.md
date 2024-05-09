@@ -1,25 +1,23 @@
 ```python
 import fitz
-import pymupdf4llm
-
-pdf_path = "./data/Distributed_Systems_4.pdf"
-
-doc = fitz.open(pdf_path)
-
-```
-
-
-```python
-
+from difflib import SequenceMatcher
+from typing import List, Dict, Tuple
+from tqdm import tqdm
 import string
 from pprint import pprint
-from tqdm.auto import tqdm # for progress bars, requires !pip install tqdm
+import pandas as pd
+import uuid
 
-import fitz
+pdf_path = "./data/Distributed_Systems_4.pdf"
+doc = fitz.open(pdf_path)
+```
 
+## to_markdown
+
+```python
+# to_markdown function
 if fitz.pymupdf_version_tuple < (1, 24, 0):
     raise NotImplementedError("PyMuPDF version 1.24.0 or later is needed.")
-
 
 def to_markdown(doc: fitz.Document, pages: list = None) -> str:
     """Process the document and return the text of its selected pages."""
@@ -41,6 +39,7 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
             """
             if pages is None:  # use all pages if omitted
                 pages = range(doc.page_count)
+                
             fontsizes = {}
             for pno in pages:
                 page = doc[pno]
@@ -80,7 +79,7 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
             for i, size in enumerate(sizes):
                 self.header_id[size] = "#" * (i + 1) + " "
 
-        def get_header_id(self, span):
+        def get_header_id(self, span, line_spans):
             """Return appropriate markdown header prefix.
 
             Given a text span from a "dict"/"radict" extraction, determine the
@@ -88,7 +87,18 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
             """
             fontsize = round(span["size"])  # compute fontsize
             hdr_id = self.header_id.get(fontsize, "")
+
+            bold = span["flags"] & 16
+            standalone = len(line_spans) == 1 and not SPACES.issuperset(span["text"])
+            if bold and standalone and not hdr_id:
+                # If the span is bold and standalone, consider it as a heading
+                if hdr_id == "":
+                    smallest_heading = max(self.header_id.values(), default="")
+                    hdr_id = "#" * (len(smallest_heading.strip()) + 1) + " "
+
+                
             return hdr_id
+      # End of class IndetifyHeaders
 
     def resolve_links(links, span):
         """Accept a span bbox and return a markdown link string."""
@@ -183,7 +193,7 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
                     else:  # not a mono text
                         # for first span, get header prefix string if present
                         if i == 0:
-                            hdr_string = hdr_prefix.get_header_id(s)
+                            hdr_string = hdr_prefix.get_header_id(s, line["spans"])
                         else:
                             hdr_string = ""
                         prefix = ""
@@ -218,6 +228,7 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
             out_string += "```\n"  # switch of code mode
             code = False
         return out_string.replace(" \n", "\n")
+      # End of write_text function
 
     hdr_prefix = IdentifyHeaders(doc, pages=pages)
     md_string = ""
@@ -312,426 +323,168 @@ def to_markdown(doc: fitz.Document, pages: list = None) -> str:
             "blocks": blocks
             })  
     return md_pages
-
-
 ```
 
 
+## remove potential headers and footers
 ```python
-from difflib import SequenceMatcher
 
-def similar(a, b):
-    return SequenceMatcher(None, a, b).ratio()
+def similar(a: str, b: str, matcher=SequenceMatcher(None, '', '')) -> float:
+    matcher.set_seqs(a, b)
+    return matcher.ratio()
 
-def identify_potential_headers_or_footers(md_p, header: bool, threshold=0.8):
-    # Extract first or last blocks
-    blocks = [page["blocks"][0] if header else page["blocks"][-1] for page in md_p if page["blocks"]]
 
-    # Identify potential headers or footers
+def identify_potential_headers_or_footers(blocks: List[str], threshold: float = 0.8) -> List[Tuple[int, List[int]]]:
     potential_blocks = []
-    for i in tqdm(range(len(blocks))):
-        similar_blocks = [j for j, similarity in enumerate([similar(blocks[i], blocks[j]) for j in range(len(blocks))]) if similarity > threshold]
-        if len(similar_blocks) > 1:
-            potential_blocks.append((i, similar_blocks))
-
+    for i, block in tqdm(enumerate(blocks)):
+        similarities = [similar(block, other_block) for other_block in blocks]
+        similar_indices = [j for j, sim in enumerate(similarities) if sim > threshold]
+        if len(similar_indices) > 1:
+            potential_blocks.append((i, similar_indices))
     return potential_blocks
 
-def has_header_or_footer(md_p, potential_blocks):
-    # Convert potential_blocks to a set for faster lookup
-    block_indices = set(index for index, _ in potential_blocks)
+def has_header_or_footer(num_pages: int, potential_blocks: List[Tuple[int, List[int]]]) -> List[bool]:
+    block_indices = {index for index, _ in potential_blocks}
+    return [i in block_indices for i in range(num_pages)]
 
-    # Create a list of booleans indicating whether each page has a potential header or footer
-    has_block = [i in block_indices for i in range(len(md_p))]
-
-    return has_block
-
-def remove_headers_or_footers(md_p, header: bool, has_block):
-    # Only keep blocks that are not potential headers or footers
-    for i, page in enumerate(md_p):
-        if has_block[i]:
+def remove_headers_or_footers(md_p: List[Dict], header: bool, has_block: List[bool]) -> List[Dict]:
+    for page, has_header_or_footer in zip(md_p, has_block):
+        if has_header_or_footer:
             page["blocks"] = page["blocks"][1:] if header else page["blocks"][:-1]
-
     return md_p
 
-def remove_headers_and_footers(md_p):
-    header = [True, False]
-    for bool_header in header:
-        potential_blocks = identify_potential_headers_or_footers(md_p, header=bool_header)
-        has_block = has_header_or_footer(md_p, potential_blocks)
-        md_p = remove_headers_or_footers(md_p, header=bool_header, has_block=has_block)
+def remove_headers_and_footers(md_p: List[Dict]) -> List[Dict]:
+    for header in [True, False]:
+        print("Removing potential headers") if header else print("Removing potential footers")
+        blocks = [page["blocks"][0 if header else -1] for page in md_p if page["blocks"]]
+        potential_blocks = identify_potential_headers_or_footers(blocks)
+        has_block = has_header_or_footer(len(md_p), potential_blocks)
+        md_p = remove_headers_or_footers(md_p, header, has_block)
     return md_p
 
-def find_entities_by_page(paragraphs: list[dict], page_number: int):
+def find_entities_by_page(paragraphs: List[Dict], page_number: int) -> List[Dict]:
     return [entity for entity in paragraphs if entity.get('pagenumber') == page_number]
 
-
-def to_block_list(paragraphs: list[dict]):
-    id_counter = 0
-    new_dict = []
-    for i in range(len(paragraphs)):
-        for block in paragraphs[i]["blocks"]:
-            new_dict.append({"id": id_counter, "block": block, "pagenumber": paragraphs[i]["page_number"]})
-            id_counter += 1
-    return new_dict
-
-
 ```
 
-
+## Hardcoded numbers. Should be dynamic.
 ```python
+# getting markdown pages
+start_page = 16
+end_page = 632
 doc = fitz.open(pdf_path)  # open input file
-pages = range(18, 632)  
-#pages = range(doc.page_count)  # default page range
-md_paragraphs = to_markdown(doc, pages=pages) # dict_keys(['document', 'page_number', 'blocks'])
-md_p = remove_headers_and_footers(md_paragraphs)
-block_list = to_block_list(md_p)
+pages = range(start_page, end_page) # get page range
 
-entities_on_page = find_entities_by_page(block_list, 30)
-
-for entity in entities_on_page:
-    print(entity)
-```
-
-```python
-import pandas as pd
-from spacy.lang.en import English # see https://spacy.io/usage for install instructions
-
-nlp = English()
-
-# Add a sentencizer pipeline, see https://spacy.io/api/sentencizer/
-nlp.add_pipe("sentencizer")
-
-for item in tqdm(block_list):
-    item["sentences"] = list(nlp(item["block"]).sents)
-
-    # Make sure all sentences are strings
-    item["sentences"] = [str(sentence) for sentence in item["sentences"]]
-
-    # Count the sentences
-    item["block_sentence_count_spacy"] = len(item["sentences"])
-    
-df = pd.DataFrame(block_list)
-df['num_sentences'] = df['block'].apply(lambda x: x.count('.') + x.count('!') + x.count('?'))
-df['num_words'] = df['block'].apply(lambda x: len(x.split()))
-df['num_chars'] = df['block'].apply(len)
-df['token_count'] = df['num_chars'].apply(lambda x: round(x/4))
-
-df.describe().round(2)
+md_pages = to_markdown(doc, pages=pages) # get markdown paragraphs as list of pages
+md_pages = remove_headers_and_footers(md_pages) # remove potential headers and footers from pages
 ```
 
 
+## Should be made functions.
 ```python
-#df_f = df[(df["block"].str.startswith(("#", "-", "**")) | df["block"].str.match(r"^\d+\.")) | (df["num_words"] >= 20)]
-df_f = df[(df["block"].str.startswith(("#", "-")) | df["block"].str.match(r"^\d+\.")) | (df["num_chars"] >= 10 )]
-
-df_sentence = df.explode("sentences")
-df_sentence = df_sentence.rename(columns={"sentences": "sentence"})
-df_sentence = df_sentence.rename(columns={"pagenumber": "page"})
-df_sentence = df_sentence[["id", "page", "sentence"]]
-df_sentence['num_words'] = df_sentence['sentence'].apply(lambda x: len(x.split()))
-df_sentence['num_chars'] = df_sentence['sentence'].apply(len)
-df_sentence['token_count'] = df_sentence['num_chars'].apply(lambda x: round(x/4))
-df_sentence = df_sentence[(df_sentence["sentence"].str.startswith("#") | (df["num_chars"] >= 10 )]
-df_sentence = df_sentence[(df_sentence["sentence"].str.startswith("#", "-") | (df["num_chars"] >= 20 )]
-df_sentence = df_sentence[(df_sentence["sentence"].str.startswith("#", "-", "**") | df["block"].str.match(r"^\d+\.")) | (df["num_chars"] >= 30 )]
-
-```
-
-
-```python
-df_sentence
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>page</th>
-      <th>sentence</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>18</td>
-      <td>The pace at which computer systems change was,...</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>18</td>
-      <td>From 1945, when the modern computer era began,...</td>
-    </tr>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>18</td>
-      <td>Moreover, lacking a way to connect them, these...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>18</td>
-      <td>Starting in the mid-1980s, however, two advanc...</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>1</td>
-      <td>18</td>
-      <td>The first was the development of powerful micr...</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>3831</th>
-      <td>3831</td>
-      <td>631</td>
-      <td>Access point, 9 Access transparency, _see_ Dis...</td>
-    </tr>
-    <tr>
-      <th>3833</th>
-      <td>3833</td>
-      <td>631</td>
-      <td>Application-layer switch, 163 Architectural pe...</td>
-    </tr>
-    <tr>
-      <th>3839</th>
-      <td>3839</td>
-      <td>632</td>
-      <td>Causal history, 267 Causality, 267 CDN, _see_ ...</td>
-    </tr>
-    <tr>
-      <th>3854</th>
-      <td>3854</td>
-      <td>632</td>
-      <td>Client stub, 148 , 194 Client-server computing...</td>
-    </tr>
-    <tr>
-      <th>3855</th>
-      <td>3855</td>
-      <td>632</td>
-      <td>cache hit, 429 coherence detection, 443 cohere...</td>
-    </tr>
-  </tbody>
-</table>
-<p>13643 rows × 3 columns</p>
-</div>
-
-
-
-
-```python
-len(df), len(df[df["block"].str.startswith("#")]), len(df[~df["block"].str.startswith(("#", "**"))])
-```
-
-
-
-
-    (3861, 217, 3020)
-
-
-
-
-```python
-df_f = df[(df["block"].str.startswith(("#", "-")) | df["block"].str.match(r"^\d+\.")) | (df["num_words"] >= 20)]
-```
-
-
-```python
+# create a dataframe with the pages, blocks and sentences
 import spacy
+import re
 
-blocks = df[df["block"].str.startswith("#")]["block"]
+def create_blocks_df(md_pages_df):
+    blocks = []
+    for _, row in md_pages_df.iterrows():
+        for block in row['blocks']:
+            blocks.append({
+                "id": uuid.uuid4(),
+                "order_id": len(blocks), 
+                "text": block, 
+                "page_number": row["page_number"], 
+                "page_id": row["id"]
+            })
 
-data = {
-    "heading": ["# Introduction", "# Methodology", "# Results"],
-    "non-heading": ["This is some text.", "Here are some results.", "This is a conclusion."]
-}
+    blocks_df = pd.DataFrame(blocks)
+    return blocks_df
 
-nlp = spacy.load('en_core_web_md')
-nlp.add_pipe("classy_classification", 
-    config={
-        "data": data,
-        "model": "spacy"
-    }
-)
-print(nlp("Is this a heading?")._.cats)
+def create_sentences_df(blocks_df):
+    nlp = spacy.load("en_core_web_sm", disable=["tagger", "parser", "ner"])
+    nlp.add_pipe("sentencizer")
+    sentences = []
+    for _, row in blocks_df.iterrows():
+        doc = nlp(row['text'])
+        for sent in doc.sents:
+            sentences.append({
+                "id": uuid.uuid4(),
+                "order_id": len(sentences),
+                "text": sent.text, 
+                "block_id": row["id"]})
+
+    sentences_df = pd.DataFrame(sentences)
+    return sentences_df
+
+def assign_chapters(df):
+    chapters = []
+    current_chapter = "None"
+    parent_chapter = "None"
+    for idx, row in df.iterrows():
+        chapter_level = 0
+        if row['text'].startswith('#'):
+            chapter_level = row['text'].split(" ")[0].count('#')
+            if not chapters or chapters[-1][1] < chapter_level:
+                chapters.append((row['text'], chapter_level))
+            else:
+                while(chapters and chapters[-1][1] >= chapter_level):
+                    chapters.pop()
+                chapters.append((row['text'], chapter_level))
+            current_chapter = chapters[-1][0]
+            if len(chapters) > 1:
+                parent_chapter = chapters[-2][0]
+                
+        df.at[idx, 'chapter'] = current_chapter.replace('#', '') 
+        df.at[idx, 'parent_chapter'] = parent_chapter.replace('#', '')
+
+
+def determine_block_type(text):
+    if re.search(r'^\s*\d+\.\s', text):
+        return 'numbered_list'
+    elif re.search(r'^\s*[-]\s', text):
+        return 'bullet_list'
+    elif re.search(r'^\s*[|]\s', text):
+        return 'table'
+    elif re.search(r'^\s*[>]\s', text):
+        return 'quote'
+    elif re.search(r'^\s*#+\s', text):
+        return 'header'
+    elif re.search(r'^\s*\w+\s*=', text) or re.search(r'^\s*\w+\s*:=', text):
+        return 'code'
+    elif re.search(r'^\s*class\s+\w+', text) or re.search(r'^\s*def\s+\w+', text):
+        return 'code'
+    elif re.search(r'^\s*if\s+', text) or re.search(r'^\s*for\s+', text) or re.search(r'^\s*while\s+', text):
+        return 'code'
+    elif re.search(r'^\s*import\s+', text) or re.search(r'^\s*from\s+', text):
+        return 'code'
+    else:
+        return 'n/a'
+
+
+pages_df = pd.DataFrame(md_pages)
+pages_df = pages_df.rename(columns={"document": "text"})
+
+pages_df['order_id'] = range(1, len(md_pages) + 1)
+pages_df['id'] = [uuid.uuid4() for _ in range(len(md_pages))]
+
+blocks_df = create_blocks_df(pages_df)
+pages_df.drop(columns=['blocks'], inplace=True)
+sentences_df = create_sentences_df(blocks_df)
+
+assign_chapters(sentences_df)
+
+chapters_df = sentences_df.groupby('block_id')[['chapter', 'parent_chapter']].first().reset_index()
+blocks_df = blocks_df.merge(chapters_df, left_on='id', right_on='block_id', how='left')
+blocks_df = blocks_df.drop(columns=['block_id'])
+
+chapters_df = blocks_df.groupby('page_id')[['chapter', 'parent_chapter']].first().reset_index()
+pages_df = pages_df.merge(chapters_df, left_on='id', right_on='page_id', how='left')
+pages_df = pages_df.drop(columns=['page_id'])
+
+blocks_df = blocks_df[~blocks_df["text"].str.startswith("#")]
+sentences_df = sentences_df[~sentences_df["text"].str.startswith("#")]
+
+blocks_df['block_type'] = blocks_df['text'].apply(determine_block_type)
+
 ```
-
-
-```python
-blocks = df["block"]
-
-blocks.dtypes
-print(blocks)
-```
-
-    0       The pace at which computer systems change was,...
-    1       Starting in the mid-1980s, however, two advanc...
-    2       The second development was the invention of hi...
-    3       Parallel to the development of increasingly po...
-    4       And the story continues. As digitalization of ...
-                                  ...                        
-    3856                               Closure mechanism, 348
-    3857                                       container, 348
-    3858       Callback, 205 CAP theorem, 506 Capability, 596
-    3859                             Cloud computing, 12 , 98
-    3860    DS 4.02 downloaded by VIKTOR.ALEXAND **@** GMA...
-    Name: block, Length: 3861, dtype: object
-
-
-
-```python
-df.describe().round(2)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>id</th>
-      <th>page</th>
-      <th>char_count</th>
-      <th>word_count</th>
-      <th>sentence_count</th>
-      <th>token_count</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>count</th>
-      <td>686.00</td>
-      <td>686.00</td>
-      <td>686.00</td>
-      <td>686.00</td>
-      <td>686.00</td>
-      <td>686.00</td>
-    </tr>
-    <tr>
-      <th>mean</th>
-      <td>342.50</td>
-      <td>343.50</td>
-      <td>2592.11</td>
-      <td>428.92</td>
-      <td>30.45</td>
-      <td>648.03</td>
-    </tr>
-    <tr>
-      <th>std</th>
-      <td>198.18</td>
-      <td>198.18</td>
-      <td>712.89</td>
-      <td>132.26</td>
-      <td>64.93</td>
-      <td>178.22</td>
-    </tr>
-    <tr>
-      <th>min</th>
-      <td>0.00</td>
-      <td>1.00</td>
-      <td>0.00</td>
-      <td>0.00</td>
-      <td>1.00</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>25%</th>
-      <td>171.25</td>
-      <td>172.25</td>
-      <td>2285.75</td>
-      <td>367.25</td>
-      <td>18.00</td>
-      <td>571.44</td>
-    </tr>
-    <tr>
-      <th>50%</th>
-      <td>342.50</td>
-      <td>343.50</td>
-      <td>2782.50</td>
-      <td>452.00</td>
-      <td>23.00</td>
-      <td>695.62</td>
-    </tr>
-    <tr>
-      <th>75%</th>
-      <td>513.75</td>
-      <td>514.75</td>
-      <td>3093.25</td>
-      <td>503.00</td>
-      <td>26.00</td>
-      <td>773.31</td>
-    </tr>
-    <tr>
-      <th>max</th>
-      <td>685.00</td>
-      <td>686.00</td>
-      <td>3724.00</td>
-      <td>1033.00</td>
-      <td>819.00</td>
-      <td>931.00</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-df.dtypes
-```
-
-
-
-
-    id                             int64
-    block                         object
-    pagenumber                     int64
-    sentences                     object
-    block_sentence_count_spacy     int64
-    num_sentences                  int64
-    num_words                      int64
-    num_chars                      int64
-    token_count                    int64
-    dtype: object
-
-
