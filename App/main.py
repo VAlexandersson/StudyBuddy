@@ -15,6 +15,7 @@ def run_study_buddy():
             print("Thank you for using Study Buddy. Goodbye!")
             break
         
+        # new_function call
         response = study_buddy.generate_response(query)
         print(response)
 
