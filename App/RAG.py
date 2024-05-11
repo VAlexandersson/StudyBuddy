@@ -6,7 +6,6 @@ import json
 from config import PRECHUNKED_DATA, CHROMA_PATH, APP_CONFIG
 from dotenv import load_dotenv
 import os
-import getpass
 from sentence_transformers import SentenceTransformer, util
 
 load_dotenv(override=True)
@@ -121,7 +120,6 @@ class RAG:
         
         reranked_doc_list = [{"id": ids[idx], "doc": docs[idx]} for idx in reranked_docs_idx]
         
-
         return reranked_doc_list
         
 
