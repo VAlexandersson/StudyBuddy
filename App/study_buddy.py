@@ -45,7 +45,7 @@ class StudyBuddy:
             pad_token_id=self.tokenizer.eos_token_id
         )
 
-        return message[0][input_ids.shape[-1]:]
+        return self.tokenizer.decode(message[0][input_ids.shape[-1]:], skip_special_tokens = True)
     
     def insert_context_into_query(self, query: str, retrieved_documents: list[dict] | dict):
         if isinstance(retrieved_documents, dict):
@@ -94,7 +94,7 @@ class StudyBuddy:
 
             
             
-            score=json.loads(self.tokenizer.decode(message, skip_special_tokens=True))
+            score=json.loads(message)
 
             response = GradeResponse(
                 document=doc,
@@ -114,19 +114,19 @@ class StudyBuddy:
         
         print("GRADING HALLUCINATION OF RESPONSE FROM RETRIEVED DOCUMENTS CONTEXT")
         
-        documents = '\n- '.join(retrieved_documents)
+        # documents = '\n- '.join(retrieved_documents['doc'])
+        documents = '\n- '.join(doc['doc'] for doc in retrieved_documents)
         
         user_prompt = USER_PROMPT[prompt_type].format(documents=documents, response=response)
         
         prompt = self.format_prompt(prompt=user_prompt, sys_role=prompt_type)
        
-        print(prompt)
-        
+        pprint(prompt)
         
         
         message = self.generate_message(prompt, temperature=0.1)
-
-        score=json.loads(self.tokenizer.decode(message, skip_special_tokens=True))
+        score=json.loads(message)
+        
         return score
 
     def evaluated_query(self, query: str):
@@ -172,15 +172,33 @@ class StudyBuddy:
             )
             formatted_prompt = self.format_prompt(user_prompt) 
             
-            inputs = self.tokenizer.apply_chat_template(
-                formatted_prompt,
-                add_generation_prompt=True,
-                return_tensors="pt"
-            ).to("cuda")
             
-            streamer = TextStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
-            #decode_kwargs = dict(inputs, streamer=streamer, max_new_tokens=1024)
-            _ = self.model.generate(inputs, streamer=streamer, max_new_tokens=1024, eos_token_id=self.terminators, do_sample=True, temperature=0.6, top_p=0.9, pad_token_id=self.tokenizer.eos_token_id)
+            message = self.generate_message(formatted_prompt) # add .decode( ) into generate_message
+                        
+            # message = self.generate_message(formatted_prompt) # add .decode( ) into generate_message 
+            
+            print("\n", self.grade_hallucination(filtered_retrieved_docs , message))            
+            print("\n", message)
+            
+            
+            
+            # input_ids = self.tokenizer.apply_chat_template(
+            #     formatted_prompt,
+            #     add_generation_prompt=True,
+            #     return_tensors="pt"
+            # ).to("cuda")
+            # 
+            # outputs = self.model.generate(
+            #     input_ids, 
+            #     max_new_tokens=1024, 
+            #     eos_token_id=self.terminators,
+            #     do_sample=True,
+            #     temperature=0.6,
+            #     top_p=0.9,
+            #     pad_token_id=self.tokenizer.eos_token_id
+            # )
+            # streamer = TextStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
+            # _ = self.model.generate(inputs, streamer=streamer, max_new_tokens=1024, eos_token_id=self.terminators, do_sample=True, temperature=0.6, top_p=0.9, pad_token_id=self.tokenizer.eos_token_id)
             
 
 

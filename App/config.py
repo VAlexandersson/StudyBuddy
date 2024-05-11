@@ -36,7 +36,7 @@ SYS_PROMPT = {
 }
 USER_PROMPT = {
     "relevance": """Here is the retrieved document: \n\n {doc} \n\nHere is the user question: {query}\n""",
-    "hulcination": """Here are the facts:\n ------- \n{documents} \n ------- \nHere is the answer: {response} """,
+    "hallucination": """Here are the facts:\n ------- \n{documents} \n ------- \nHere is the answer: {response} """,
 }
 PROMPT = {
 }
