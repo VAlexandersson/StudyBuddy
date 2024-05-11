@@ -30,3 +30,14 @@ APP_CONFIG = {
     "embedding_model_id": "all-mpnet-base-v2",
     "data_path": "../data",
 }
+
+PRECHUNKED_DATA = [
+    {
+        "course": "Distributed System",
+        "type": "book:Distributed Systems 4",
+        "id_code": "ds4_",
+        "path": "/home/buddy/Study-Buddy/data/output.json"
+    },
+]
+
+CHROMA_PATH = "../data/vectordb"
