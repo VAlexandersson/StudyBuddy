@@ -83,7 +83,7 @@ class RAG:
         results = self.collection.query(query_embeddings=[query_embeddings], n_results=self.retrieve_top_k)
         return results
 
-    def rerank(self, query, docs, rank_fields=None):
+    def rerank(self, query, docs):
         """Rerank the retrieved documents and returns a list of their ids.
 
         Args:
@@ -100,7 +100,6 @@ class RAG:
             documents=docs,
             top_n=self.rerank_top_k,
             model="rerank-english-v3.0",
-            rank_fields=rank_fields
         )
         
         results = rerank_results.results
