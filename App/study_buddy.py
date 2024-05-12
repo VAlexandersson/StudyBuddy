@@ -23,9 +23,9 @@ import os
 class RAG:
     def __init__(self, embedding_model: SentenceTransformer, prechunked_data_path: str = None):
         self.embedding_model = embedding_model
-        self.co = cohere.Client(os.environ["COHERE_API_KEY"])
+        self.co = cohere.Client(os.environ["COHERE_API_KEY"]) 
         
-        self.client     = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # Initialize Chroma Client
+        self.client     = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # Change to persistent client instead.
         self.collection = self.client.create_collection(name="course_documents")
 
         self.retrieve_top_k = 10
@@ -157,12 +157,11 @@ class StudyBuddy:
             "course_query": self.vectorstore_query,
             "general_query": self.general_query,
             "multi_query": self.multi_query,
-            "evaluated_query": self.evaluated_query
         }
         
     def generate_message(self, prompt, temperature=0.7):
-        #print("daddy chill, im thinking..")
-        
+        # Breakout large language model into a separate function and make it a class variable?
+        # To make study buddy more flexible and more modular. But also to make it more RAG focused.
         input_ids = self.tokenizer.apply_chat_template(
             prompt,
             add_generation_prompt=True,
@@ -177,7 +176,6 @@ class StudyBuddy:
             do_sample=True,
             pad_token_id=self.tokenizer.eos_token_id
         )
-        # os.system('clear')
         return self.tokenizer.decode(message[0][input_ids.shape[-1]:], skip_special_tokens = True)
     
     def insert_context_into_query(self, query: str, retrieved_documents: list[dict] | dict):
@@ -220,14 +218,11 @@ class StudyBuddy:
         Give a binary 'yes' or 'no' score to indicate whether the answer is a question. 
         Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."""
         
-        print("IS QUESTION------------------\n")
+        print("---------IS QUESTION---------\n")
 
-        #inputs = self.q_s_tokenizer(prompt, return_tensors="pt")
-        #probablities = self.q_s_model(**inputs).logits
-        # tokens = self.q_s_tokenizer(user_prompt)
-        # output = self.q_s_model(**tokens)
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
         
+        # switch out to the classifier instead?
         start_time_qs_classifier = time.time()
         output = self.qs_classifier(query, ["question", "statement"])
         label = output["labels"][0]
@@ -235,21 +230,16 @@ class StudyBuddy:
 
         print(f"qs_classifier execution time: {elapsed_time_qs_classifier} seconds")
         print("q_s output: ", label)
-        # time
-        print("- - - - - - - - -\n")
-        
-        # time
+
+        print("\n- - - - - - - - -\n")
 
         start_time_grade_yes_or_no = time.time()
         grade = self.grade_yes_or_no(prompt)
         elapsed_time_grade_yes_or_no = (time.time() - start_time_grade_yes_or_no)*1000
         print(f"grade_yes_or_no execution time: {elapsed_time_grade_yes_or_no} seconds")
         print(grade)
-
-        # Stop the timer and print the elapsed time
-        # print both times
-        
         print("------------------\n")
+        
         return grade
     
     
@@ -349,82 +339,6 @@ class StudyBuddy:
         # TODO: Parse the message and return the queries as a list
         
     
-    
-    def evaluated_query(self, query: str) -> Grade:
-        print("Evaluate query.------------------\n")
-        
-        sys_prompt = """You are query classifier for a RAG module that is used by students in curriculum specific applications.
-        Your goal is to determine if a query is curriculum related. 
-        Give a binary 'yes' or 'no' score to indicate whether the answer is grounded in supported by a set of facts. 
-        Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."""
-        
-        sys_prompt1 = """You are a query context assessor. Your Goal is to assess if the query needs context to be answered.
-        Give a binary 'yes' or 'no' score to indicate whether the query needs context to be answered.
-        Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."""
-        
-        user_prompt = f"Query: {query}"
-        
-        
-        prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt1)
-        grade = self.grade_yes_or_no(prompt)
-        print(grade)
-        print("------------------\n")
-        
-        #message = self.generate_message(prompt)
-        #score=json.loads(message)["score"]
-        #grade = GradeResponse(score=score)
-    
-        # return grade
-    
-    def type_query(self, query: str):
-        print("------------------\nType query.")
-        
-        sys_prompt = ""
-        user_prompt = f"""
-Please analyze the following query and determine whether it is a question or not. Output your final assessment as a single word ("yes" or "no") in JSON format.
-
-Query: {query}
-
-Consider the following factors in your analysis:
-
-1. Presence of common question words or phrases, such as:
-- Who, What, When, Where, Why, How
-- Do, Does, Did, Will, Would, Should, Can, Could, Is, Are, Am
-- "?"
-
-2. Structure of the query and whether it follows a typical question format, such as:
-- Starting with a question word or phrase
-- Ending with a question mark
-- Having a subject-verb inversion (e.g., "Is this a question?" instead of "This is a question.")
-
-3. Context and intent of the query, i.e., whether it seems to be seeking information, clarification, or an answer, or if it appears to be a statement, command, or something else.
-
-Final assessment (output as JSON):
-{{"isQuestion": "[yes/no]"}}
-"""
-
-                
-        prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
-        message = self.generate_message(prompt)
-        
-        print(message)
-        print("------------------\n")
-    
-    def extract_keywords(self, query: str):
-        print("------------------\nExtract keywords.")
-        
-        
-        sys_prompt = """You are a keyword extractor. Your goal is to identify the main keywords in the given query.
-        List the main keywords that you think are important for understanding the query.
-        Separate the keywords with commas and do not include any additional information or explanations."""
-        
-        user_prompt = f"Query: {query}"
-        
-        prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
-        message = self.generate_message(prompt)
-        
-        print(message)
-        print("------------------\n")
     def decompose_query(self, query: str):
         print("------------------")
         print("Decompose query")
@@ -466,30 +380,7 @@ Final assessment (output as JSON):
         print("\n", self.grade_hallucination(filtered_retrieved_docs , message))
         print("\n", message)
 
-    def route_query(self, query: str):
-        """
-        Routes the query to the appropriate function based on the query type
-        """
-        print("Route query")
-        query_type = self.determine_query_type(query)
-        
-        # Is Query is RAGish, Yes or No?
-        #   - Is it related to any course?
-        
-        # If Yes, then RAG it. (use vectorstore)
-        
-        # If No, then route it to the appropriate function. 
-    def determine_query_type(self, query: str):
-        """
-        Determines the type of query based on the query
-        """
-        print("Determine query type")
-        keyword_mappings = {
-            "course_query": ["course", "syllabus", "lecture", "topic", "concept"],
-            "general_query": ["what", "how", "when", "where", "why"],
-            "multi_query": ["and", "or", "vs", "versus", "compared to"],
-            "evaluated_query": ["evaluate", "assessment", "grade", "score"]
-        }
+
 
     def run(self):
         """
@@ -505,13 +396,8 @@ Final assessment (output as JSON):
             # response = self.evaluate_query(query)
             # GENERATE SEARCH QUERIES FOR RAG???? X vs Y. Search for X and Y separated and merge top ranked.
             
-            # grade = self.evaluated_query(query)
             grade = self.is_question(query)
             self.decompose_query(query)
-            
-            # self.type_query(query)
-            # self.extract_keywords(query)
-            # self.multi_query(query)
             
             if grade == None:
                 continue
@@ -521,56 +407,9 @@ Final assessment (output as JSON):
                 query_function(query)
             elif grade.score == "no":
                 query_function = self.query_routes["general_query"]
-                query_function(query)
-            #else:
-            #    continue
-            continue
-                
-
-            retrieved_docs = self.rag.advanced(query, top_k = 10)
-            grade_response = self.grade_relevance(query, retrieved_docs, verbose=False)
-            filtered_retrieved_docs = [response.document for response in grade_response if response.score.lower() != 'no']
-            for response in grade_response:
-                #print(response.document)
-                print(response.score)
-            print(len(filtered_retrieved_docs))
-            if False:
-                pprint(filtered_retrieved_docs)
-                print("\n")
-            documents = '\n- '.join(doc['doc'] for doc in filtered_retrieved_docs)
-            prompt_type = "education"
-            sys_prompt = SYS_PROMPT[prompt_type]
-            user_prompt = USER_PROMPT[prompt_type].format(query=query, doc=documents)
-            finished_prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt) 
-            message = self.generate_message(finished_prompt) # add .decode( ) into generate_message
-            print("\n", self.grade_hallucination(filtered_retrieved_docs , message))            
-            print("\n", message)
-            print("\n")
+                query_function(query)                
 
 if __name__ == "__main__":
     study_buddy = StudyBuddy()
     study_buddy.run()
-            
-            
-            # message = self.generate_message(finished_prompt) # add .decode( ) into generate_message 
-            # user_prompt = self.insert_context_into_query(query=query, retrieved_documents=filtered_retrieved_docs)
-            
-            
-            # input_ids = self.tokenizer.apply_chat_template(
-            #     finished_prompt,
-            #     add_generation_prompt=True,
-            #     return_tensors="pt"
-            # ).to("cuda")
-            # 
-            # outputs = self.model.generate(
-            #     input_ids, 
-            #     max_new_tokens=1024, 
-            #     eos_token_id=self.terminators,
-            #     do_sample=True,
-            #     temperature=0.6,
-            #     top_p=0.9,
-            #     pad_token_id=self.tokenizer.eos_token_id
-            # )
-            # streamer = TextStreamer(self.tokenizer, skip_prompt=True, skip_special_tokens=True)
-            # _ = self.model.generate(inputs, streamer=streamer, max_new_tokens=1024, eos_token_id=self.terminators, do_sample=True, temperature=0.6, top_p=0.9, pad_token_id=self.tokenizer.eos_token_id)
             
