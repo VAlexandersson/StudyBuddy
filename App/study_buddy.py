@@ -210,7 +210,7 @@ class StudyBuddy:
             query,
             ["question", "statement"],
             hypothesis_template="This query is a {}",
-            multi_class=True,
+            multi_label=True,
         )
         label = output["labels"][0]
         print("classifier output: ", label)
@@ -376,10 +376,8 @@ class StudyBuddy:
         elif output["labels"][0] == "calculus":
             print("Calculus")
         else:
-            context = "Aint got shit to do."
-            self.lms.
-            
-            
+            context = "Aint got shit to do next week."
+
         pass
     
     def run(self):
