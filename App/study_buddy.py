@@ -4,24 +4,13 @@ from sentence_transformers import SentenceTransformer, util
 from transformers import pipeline
 import json
 from pydantic import BaseModel, ValidationError
-import time
-<<<<<<< HEAD
-
 from llms.huggingface_llm import HuggingFaceLLM
-
-
-=======
->>>>>>> 167b26ecdf978041d275291dde2e9ec544ccb41a
 from typing import List, Dict
 import chromadb
-
 import cohere
 from config import PRECHUNKED_DATA, CHROMA_PATH, APP_CONFIG
 from llms.huggingface_llm import HuggingFaceLLM
 import os
-
-
-
 
 class RAG:
     def __init__( self, embedding_model: SentenceTransformer, prechunked_data_path: str = None ):
@@ -34,6 +23,9 @@ class RAG:
         self.retrieve_top_k = 10
         self.rerank_top_k = 3
         self.load_prechunked_data()
+
+    def store_data(self, data):
+        pass
 
     def load_prechunked_data(self):
         for data in PRECHUNKED_DATA:
@@ -157,16 +149,7 @@ class StudyBuddy:
             "zero-shot-classification",
             model="MoritzLaurer/deberta-v3-large-zeroshot-v2.0",
         )
-
         self.llm = HuggingFaceLLM(model_id=CONFIG["model_id"], device=CONFIG["device"])
-
-        # self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
-        # self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
-
-        self.terminators = [
-            self.tokenizer.eos_token_id,
-            self.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
-        ]
 
         self.chat_history = []
         
@@ -175,26 +158,6 @@ class StudyBuddy:
             "general_query": self.general_query,
         }
 
-    def generate_message(self, prompt, temperature=0.7):
-        # Breakout large language model into a separate function and make it a class variable?
-        # To make study buddy more flexible and more modular. But also to make it more RAG focused.
-        return self.llm.generate_text(prompt, temperature=temperature)
-
-        input_ids = self.tokenizer.apply_chat_template(
-            prompt, add_generation_prompt=True, return_tensors="pt"
-        ).to("cuda")
-
-        message = self.model.generate(
-            input_ids,
-            max_new_tokens=256,
-            eos_token_id=self.terminators,
-            temperature=temperature,
-            do_sample=True,
-            pad_token_id=self.tokenizer.eos_token_id,
-        )
-        return self.tokenizer.decode(
-            message[0][input_ids.shape[-1] :], skip_special_tokens=True
-        )
 
     def format_prompt(self, user_prompt: str, sys_prompt: str):
         message = [
@@ -214,12 +177,10 @@ class StudyBuddy:
             user_prompt=user_prompt, sys_prompt=sys_prompt
         )
 
-        return self.generate_message(finished_prompt)
+        return self.llm.generate_text(finished_prompt)
 
     # TODO FIX THIS FUNCTION
-    def is_question(
-        self, query: str, verbose: bool = False, max_retries: int = 5
-    ) -> BinaryGrade:
+    def is_question(self, query: str, verbose: bool = False, max_retries: int = 5) -> BinaryGrade:
         sys_prompt = ""
         user_prompt = f"""
         Please analyze the following query and determine whether it is a question or not. Output your final assessment as a single word ("yes" or "no") in JSON format.
@@ -243,61 +204,31 @@ class StudyBuddy:
         Give a binary 'yes' or 'no' score to indicate whether the answer is a question. 
         Provide the binary score as a JSON with a single key 'score' and no preamble or explanation."""
 
-        print("---------IS QUESTION---------\n")
 
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
-
-        start_time_classifier = time.time()
-
         output = self.zeroshot_classifier(
             query,
             ["question", "statement"],
             hypothesis_template="This query is a {}",
             multi_class=True,
         )
-
         label = output["labels"][0]
-        elapsed_time_classifier = (time.time() - start_time_classifier) * 1000
-
-        print(f"qs_classifier execution time: {elapsed_time_classifier} seconds")
         print("classifier output: ", label)
-
-        print("\n- - - - - - - - -\n")
-
-        start_time_grade_yes_or_no = time.time()
+        
         grade = self.binary_grade(prompt)
-        elapsed_time_grade_yes_or_no = (time.time() - start_time_grade_yes_or_no) * 1000
-        print(f"grade_yes_or_no execution time: {elapsed_time_grade_yes_or_no} seconds")
-        print(grade)
-        print("------------------\n")
-
-        output = self.zeroshot_classifier(
-            query,
-            [
-                "datastructures and algorithms",
-                "distributed systems",
-                "machine learning",
-                "real-time programming",
-                "calculus",
-                "computer network",
-            ],
-            hypothesis_template="This query is about the course {}",
-            multi_class=False,
-        )
-
-        print(output)
 
         return grade
 
-    # GOOD FUNCTION
     def binary_grade(
-        self, prompt: str, type: str = None, verbose: bool = False, max_retries: int = 5
+        self, prompt, type: str = None, verbose: bool = False, max_retries: int = 5
     ):
-        # print("GRADE")
+        print("GRADE")
         retries = 0
         while retries < max_retries:
             try:
-                data = json.loads(self.generate_message(prompt, temperature=0.1))
+                message = self.llm.generate_text(prompt)
+                
+                data = json.loads(message)
                 grade = BinaryGrade(score=data["score"])
 
                 if grade.score not in ["yes", "no"]:
@@ -338,9 +269,7 @@ class StudyBuddy:
 
         return self.binary_grade(prompt)
 
-    def grade_relevance(
-        self, query: str, retrieved_document: str, verbose: bool = False
-    ) -> BinaryGrade:
+    def grade_relevance(self, query: str, retrieved_document: str, verbose: bool = False) -> BinaryGrade:
         """
         Grades the retrieval of a document based on the query
         """
@@ -358,8 +287,6 @@ class StudyBuddy:
         return self.binary_grade(prompt)
 
     def decompose_query(self, query: str):
-        print("------------------")
-        print("Decompose query")
         sys_prompt = """You are a query decomposer. Your goal is to break down a user question into distinct sub-questions that need to be answered in order to answer the original question.
         If there are acronyms or words you are not familiar with, do not try to rephrase them.
         Separate the sub-questions with a newline and do not include any additional information or explanations."""
@@ -369,9 +296,7 @@ class StudyBuddy:
             user_prompt=user_prompt, sys_prompt=sys_prompt
         )
 
-        message = self.generate_message(finished_prompt)
-        print("\n", message)
-        print("------------------\n")
+        message = self.llm.generate_text(finished_prompt)
 
     def general_query(self, query: str):
         print("General query.")
@@ -381,9 +306,9 @@ class StudyBuddy:
             user_prompt=user_prompt, sys_prompt=sys_prompt
         )
 
-        message = self.generate_message(
+        message = self.llm.generate_text(
             finished_prompt
-        )  # add .decode( ) into generate_message
+        )  # add .decode( ) into self.llm.generate_text
 
         print("\n", message)
 
@@ -399,7 +324,7 @@ class StudyBuddy:
             if self.grade_relevance(query, doc, verbose=False).score == "yes"
         ]
 
-        # Get parent documents (pages)
+        # If block has page key, -> get parent documents (pages)
 
         # Summarize the parent docs
 
@@ -414,16 +339,49 @@ class StudyBuddy:
             user_prompt=user_prompt, sys_prompt=sys_prompt
         )
 
-        message = self.generate_message(
+        message = self.llm.generate_text(
             finished_prompt
-        )  # add .decode( ) into generate_message
+        )
 
         print("\nALLES GUT\n") if self.grade_hallucination(
             good_docs, message
         ).score == "yes" else print("\nALLES SCHEISSE\n")
 
         print("\n", message)
-
+        
+    def course_route(self, query: str):
+        output = self.zeroshot_classifier(
+            query,
+            [
+                "distributed systems",
+                "machine learning",
+                "calculus",
+                "planning",
+                "schedule",
+                "other"
+            ],
+            hypothesis_template="This query is about the course {}",
+            multi_lable=False,
+        )
+        print(output)
+        if output["labels"][0] == "other":
+            print("Other")
+        elif output["labels"][0] == "distributed systems":
+            print("Distributed systems")
+            query_function = self.query_routes["course_query"]
+            query_function(query)
+        
+        elif output["labels"][0] == "machine learning":
+            print("Machine learning")
+        elif output["labels"][0] == "calculus":
+            print("Calculus")
+        else:
+            context = "Aint got shit to do."
+            self.lms.
+            
+            
+        pass
+    
     def run(self):
         """
         Runs study buddy
@@ -438,22 +396,22 @@ class StudyBuddy:
             # response = self.evaluate_query(query)
             # GENERATE SEARCH QUERIES FOR RAG???? X vs Y. Search for X and Y separated and merge top ranked.
 
-            grade = self.is_question(query)
             self.decompose_query(query)
 
-            if grade == None:
-                continue
-
-            if grade.score == "yes":
+            is_question = self.is_question(query)
+            
+            if is_question.score == "yes":
+                self.course_route(query)
                 query_function = self.query_routes["course_query"]
                 query_function(query)
-            elif grade.score == "no":
+                
+            elif is_question.score == "no":
                 query_function = self.query_routes["general_query"]
                 query_function(query)
+            
 
 
 if __name__ == "__main__":
     study_buddy = StudyBuddy()
-    os.system("clear")
 
     study_buddy.run()

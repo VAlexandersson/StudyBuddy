@@ -12,8 +12,6 @@ else:
     raise ValueError(f"Unsupported chatbot type: {chatbot_config.CHATBOT_TYPE}")
 
 
-
-
 def run_study_buddy():
     study_buddy = StudyBuddy()
     os.system('clear')
