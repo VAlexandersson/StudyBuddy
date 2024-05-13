@@ -1,11 +1,11 @@
 import os
+import torch
 from dotenv import load_dotenv
-
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 load_dotenv(override=True)
 
-import torch
+
 CONFIG = {
     'device': 'cuda' if torch.cuda.is_available() else 'cpu',
     'attn_implementation': 'sdpa',
