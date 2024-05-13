@@ -2,6 +2,7 @@ import config
 from config import CONFIG, SYS_PROMPT, USER_PROMPT
 
 import torch
+torch.cuda.empty_cache()
 from sentence_transformers import SentenceTransformer, util
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer, AutoModelForSequenceClassification
 from transformers import pipeline
@@ -11,6 +12,7 @@ import json
 from pydantic import BaseModel, ValidationError
 import time
 
+from llms.huggingface_llm import HuggingFaceLLM
 
 from typing import List, Dict
 import chromadb
@@ -130,38 +132,35 @@ class RAG:
         
         return reranked_doc_list
 
-
-class GradeResponse(BaseModel):
-    document: dict
+class BinaryGrade(BaseModel):
     score: str
-
-class Grade(BaseModel):
-    score: str
-
-
+    
 class StudyBuddy:
     def __init__(self): 
         self.embedding_model = SentenceTransformer(model_name_or_path=CONFIG['embedding_model_id'], device=CONFIG['device'])
-        os.system('clear')
-        
         self.rag = RAG(self.embedding_model)
         
-        self.qs_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-        self.classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+        self.zeroshot_classifier = pipeline("zero-shot-classification", model="MoritzLaurer/deberta-v3-large-zeroshot-v2.0")
+
+        self.llm = HuggingFaceLLM(model_id=CONFIG['model_id'], device=CONFIG['device'])
+
+        # self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
+        # self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
         
-        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
-        self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
         self.terminators = [ self.tokenizer.eos_token_id, self.tokenizer.convert_tokens_to_ids("<|eot_id|>") ]
-        os.system('clear')
+        
+        
+        
         self.query_routes = {
             "course_query": self.vectorstore_query,
             "general_query": self.general_query,
-            "multi_query": self.multi_query,
         }
         
     def generate_message(self, prompt, temperature=0.7):
         # Breakout large language model into a separate function and make it a class variable?
         # To make study buddy more flexible and more modular. But also to make it more RAG focused.
+        return self.llm.generate_text(prompt, temperature=temperature)
+
         input_ids = self.tokenizer.apply_chat_template(
             prompt,
             add_generation_prompt=True,
@@ -177,15 +176,6 @@ class StudyBuddy:
             pad_token_id=self.tokenizer.eos_token_id
         )
         return self.tokenizer.decode(message[0][input_ids.shape[-1]:], skip_special_tokens = True)
-    
-    def insert_context_into_query(self, query: str, retrieved_documents: list[dict] | dict):
-        if isinstance(retrieved_documents, dict):
-            retrieved_documents = [retrieved_documents]
-        
-        base_prompt = f"Query: {query}\nContext:"
-        for item in retrieved_documents:
-            base_prompt += f"\n- {item['doc']}"
-        return base_prompt
 
     def format_prompt(self, user_prompt: str, sys_prompt: str):
         message = [
@@ -194,7 +184,19 @@ class StudyBuddy:
         ]
         return message
     
-    def is_question(self, query: str, verbose: bool = False, max_retries: int = 5) -> Grade:
+    def education(self, query: str, docs:list[str]) -> str:
+        print("EDUCATION")
+        prompt_type = "education"
+        documents = '\n- '.join(doc['doc'] for doc in docs)
+        
+        sys_prompt = SYS_PROMPT[prompt_type]
+        user_prompt = USER_PROMPT[prompt_type].format(query=query, doc=documents)
+        finished_prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt) 
+        
+        return self.generate_message(finished_prompt)
+    
+    # TODO FIX THIS FUNCTION 
+    def is_question(self, query: str, verbose: bool = False, max_retries: int = 5) -> BinaryGrade:
         sys_prompt = ""
         user_prompt = f"""
         Please analyze the following query and determine whether it is a question or not. Output your final assessment as a single word ("yes" or "no") in JSON format.
@@ -222,34 +224,49 @@ class StudyBuddy:
 
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
         
-        # switch out to the classifier instead?
-        start_time_qs_classifier = time.time()
-        output = self.qs_classifier(query, ["question", "statement"])
-        label = output["labels"][0]
-        elapsed_time_qs_classifier = (time.time() - start_time_qs_classifier)*1000
 
-        print(f"qs_classifier execution time: {elapsed_time_qs_classifier} seconds")
-        print("q_s output: ", label)
+        start_time_classifier = time.time()
+        
+        output = self.zeroshot_classifier(query, ["question", "statement"], hypothesis_template="This query is a {}", multi_class=True)
+        
+        
+        label = output["labels"][0]
+        elapsed_time_classifier = (time.time() - start_time_classifier)*1000
+
+
+
+        print(f"qs_classifier execution time: {elapsed_time_classifier} seconds")
+        print("classifier output: ", label)
 
         print("\n- - - - - - - - -\n")
 
         start_time_grade_yes_or_no = time.time()
-        grade = self.grade_yes_or_no(prompt)
+        grade = self.binary_grade(prompt)
         elapsed_time_grade_yes_or_no = (time.time() - start_time_grade_yes_or_no)*1000
         print(f"grade_yes_or_no execution time: {elapsed_time_grade_yes_or_no} seconds")
         print(grade)
         print("------------------\n")
         
+        
+        
+        output = self.zeroshot_classifier(
+            query, 
+            ["datastructures and algorithms", "distributed systems", "machine learning", "real-time programming", "calculus", "computer network"], 
+            hypothesis_template="This query is about the course {}", multi_class=False)
+
+        print(output)
+
         return grade
     
     
-    def grade_yes_or_no(self, prompt: str, type: str = None, verbose: bool=False, max_retries: int=5):
+    # GOOD FUNCTION
+    def binary_grade(self, prompt: str, type: str = None, verbose: bool=False, max_retries: int=5):
         # print("GRADE")
         retries = 0
         while retries < max_retries:
             try:
                 data = json.loads(self.generate_message(prompt, temperature=0.1))
-                grade = Grade(score=data["score"])
+                grade = BinaryGrade(score=data["score"])
 
                 if grade.score not in ['yes', 'no']:
                     raise ValueError("Score value must be either 'yes' or 'no'")
@@ -261,43 +278,9 @@ class StudyBuddy:
         print("Max retries reached. Exiting...")
         return None
     
-    
-    def grade_relevance(self, query: str, retrieved_documents: list[dict], verbose: bool=False):
-        prompt_type = "relevance"
-        """
-        Grades the retrieval of a document based on the query
-        """
-        
-        print("GRADING RELEVANCE OF RETRIEVED DOCUMENTS")
-        output = []
-        for doc in retrieved_documents:
-            
 
-            
-            sys_prompt = SYS_PROMPT[prompt_type]
-            user_prompt = USER_PROMPT[prompt_type].format(doc=doc["doc"], query = query)
-            
-            prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt = sys_prompt)
-            
-            message = self.generate_message(prompt, temperature=0.1)
-
-            score=json.loads(message)
-
-            response = GradeResponse(
-                document=doc,
-                score=score["score"]
-            )
-            
-            if verbose:
-                pprint(response)
-
-            output.append(response)
-            
-        return output
-
-    def grade_hallucination(self, retrieved_documents: list[dict], response: str) -> Grade:
+    def grade_hallucination(self, retrieved_documents: list[dict], response: str) -> BinaryGrade:
         prompt_type = "hallucination"
-        
         print("GRADING HALLUCINATION OF RESPONSE FROM RETRIEVED DOCUMENTS CONTEXT")
 
         documents = '\n- '.join(doc['doc'] for doc in retrieved_documents)
@@ -307,9 +290,10 @@ class StudyBuddy:
 
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
         
-        return self.grade_yes_or_no(prompt)
+        return self.binary_grade(prompt)
     
-    def grade_answer(self, query: str, response: str):
+    
+    def grade_answer(self, query: str, response: str) -> BinaryGrade:
         prompt_type = "answer"
         print("GRADING ANSWER")
         
@@ -318,26 +302,24 @@ class StudyBuddy:
         
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
         
-        message = self.generate_message(prompt, temperature=0.1)
-        score=json.loads(message)
-        
-        return score
-    
-    
-    def multi_query(self, query: str):
-        prompt_type = "multi_query"
-        print("Multi query------------------\n")
-        
+        return self.binary_grade(prompt)
+
+    def grade_relevance(self, query: str, retrieved_document: str, verbose: bool=False) -> BinaryGrade:
+        """
+        Grades the retrieval of a document based on the query
+        """
+        prompt_type = "relevance"
+
+        print("GRADING RELEVANCE OF RETRIEVED DOCUMENTS")
+
         sys_prompt = SYS_PROMPT[prompt_type]
-        user_prompt = USER_PROMPT[prompt_type].format(query=query)
-        
-        prompt = self.format_prompt(user_prompt==user_prompt, sys_prompt=sys_prompt)
-        message = self.generate_message(prompt)
-        
-        print(message)
-        print("------------------\n")
-        # TODO: Parse the message and return the queries as a list
-        
+        user_prompt = USER_PROMPT[prompt_type].format(doc=retrieved_document, query = query)
+
+        prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt = sys_prompt)
+
+        return self.binary_grade(prompt)
+    
+
     
     def decompose_query(self, query: str):
         print("------------------")
@@ -363,23 +345,39 @@ class StudyBuddy:
                     
         print("\n", message)
     
+
     def vectorstore_query(self, query: str):
         print("Vectorstore query.")
+        
+        
         retrieved_docs = self.rag.advanced(query, top_k = 10)
-        grade_response = self.grade_relevance(query, retrieved_docs, verbose=False)
         
-        filtered_retrieved_docs = [response.document for response in grade_response if response.score.lower() != 'no']
         
-        documents = '\n- '.join(doc['doc'] for doc in filtered_retrieved_docs)
+        # Filter out the bad docs
+        good_docs = [doc for doc in retrieved_docs if self.grade_relevance(query, doc, verbose=False).score == "yes"]
+        
+        
+        # Get parent documents (pages)
+        
+        # Summarize the parent docs
+        
+        # Validate the summarized parent docs
+        
+        
+
+        documents = '\n- '.join(doc['doc'] for doc in good_docs)
+        
         prompt_type = "education"
         sys_prompt = SYS_PROMPT[prompt_type]
         user_prompt = USER_PROMPT[prompt_type].format(query=query, doc=documents)
         finished_prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt) 
+                
         message = self.generate_message(finished_prompt) # add .decode( ) into generate_message
                     
-        print("\n", self.grade_hallucination(filtered_retrieved_docs , message))
-        print("\n", message)
+        print("\nALLES GUT\n") if self.grade_hallucination(good_docs, message).score == "yes" else print("\nALLES SCHEISSE\n")
 
+
+        print("\n", message)
 
 
     def run(self):
@@ -411,5 +409,7 @@ class StudyBuddy:
 
 if __name__ == "__main__":
     study_buddy = StudyBuddy()
+    os.system('clear')
+    
     study_buddy.run()
             
