@@ -2,6 +2,7 @@ import config
 from config import CONFIG, SYS_PROMPT, USER_PROMPT
 
 import torch
+torch.cuda.empty_cache()
 from sentence_transformers import SentenceTransformer, util
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer, AutoModelForSequenceClassification
 from transformers import pipeline
@@ -143,8 +144,8 @@ class StudyBuddy:
 
         self.llm = HuggingFaceLLM(model_id=CONFIG['model_id'], device=CONFIG['device'])
 
-        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
-        self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
+        # self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
+        # self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
         
         self.terminators = [ self.tokenizer.eos_token_id, self.tokenizer.convert_tokens_to_ids("<|eot_id|>") ]
         
