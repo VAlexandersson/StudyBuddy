@@ -11,6 +11,7 @@ import json
 from pydantic import BaseModel, ValidationError
 import time
 
+from llms.huggingface_llm import HuggingFaceLLM
 
 from typing import List, Dict
 import chromadb
@@ -136,17 +137,19 @@ class BinaryGrade(BaseModel):
 class StudyBuddy:
     def __init__(self): 
         self.embedding_model = SentenceTransformer(model_name_or_path=CONFIG['embedding_model_id'], device=CONFIG['device'])
-        os.system('clear')
-        
         self.rag = RAG(self.embedding_model)
         
-        self.qs_classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-        self.classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-        
+        self.zeroshot_classifier = pipeline("zero-shot-classification", model="MoritzLaurer/deberta-v3-large-zeroshot-v2.0")
+
+        self.llm = HuggingFaceLLM(model_id=CONFIG['model_id'], device=CONFIG['device'])
+
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'])
         self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path=CONFIG['model_id'], torch_dtype=torch.float16, low_cpu_mem_usage=False, attn_implementation=CONFIG['attn_implementation']).to(CONFIG['device'])
+        
         self.terminators = [ self.tokenizer.eos_token_id, self.tokenizer.convert_tokens_to_ids("<|eot_id|>") ]
-        os.system('clear')
+        
+        
+        
         self.query_routes = {
             "course_query": self.vectorstore_query,
             "general_query": self.general_query,
@@ -155,6 +158,8 @@ class StudyBuddy:
     def generate_message(self, prompt, temperature=0.7):
         # Breakout large language model into a separate function and make it a class variable?
         # To make study buddy more flexible and more modular. But also to make it more RAG focused.
+        return self.llm.generate_text(prompt, temperature=temperature)
+
         input_ids = self.tokenizer.apply_chat_template(
             prompt,
             add_generation_prompt=True,
@@ -218,14 +223,19 @@ class StudyBuddy:
 
         prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt)
         
-        # switch out to the classifier instead?
-        start_time_qs_classifier = time.time()
-        output = self.qs_classifier(query, ["question", "statement"])
-        label = output["labels"][0]
-        elapsed_time_qs_classifier = (time.time() - start_time_qs_classifier)*1000
 
-        print(f"qs_classifier execution time: {elapsed_time_qs_classifier} seconds")
-        print("q_s output: ", label)
+        start_time_classifier = time.time()
+        
+        output = self.zeroshot_classifier(query, ["question", "statement"], hypothesis_template="This query is a {}", multi_class=True)
+        
+        
+        label = output["labels"][0]
+        elapsed_time_classifier = (time.time() - start_time_classifier)*1000
+
+
+
+        print(f"qs_classifier execution time: {elapsed_time_classifier} seconds")
+        print("classifier output: ", label)
 
         print("\n- - - - - - - - -\n")
 
@@ -236,6 +246,15 @@ class StudyBuddy:
         print(grade)
         print("------------------\n")
         
+        
+        
+        output = self.zeroshot_classifier(
+            query, 
+            ["datastructures and algorithms", "distributed systems", "machine learning", "real-time programming", "calculus", "computer network"], 
+            hypothesis_template="This query is about the course {}", multi_class=False)
+
+        print(output)
+
         return grade
     
     
@@ -346,16 +365,12 @@ class StudyBuddy:
         
 
         documents = '\n- '.join(doc['doc'] for doc in good_docs)
-        print("Documents:\n", documents)
-        print("\n")
         
         prompt_type = "education"
         sys_prompt = SYS_PROMPT[prompt_type]
         user_prompt = USER_PROMPT[prompt_type].format(query=query, doc=documents)
         finished_prompt = self.format_prompt(user_prompt=user_prompt, sys_prompt=sys_prompt) 
-        
-        print(finished_prompt)
-        
+                
         message = self.generate_message(finished_prompt) # add .decode( ) into generate_message
                     
         print("\nALLES GUT\n") if self.grade_hallucination(good_docs, message).score == "yes" else print("\nALLES SCHEISSE\n")
@@ -393,5 +408,7 @@ class StudyBuddy:
 
 if __name__ == "__main__":
     study_buddy = StudyBuddy()
+    os.system('clear')
+    
     study_buddy.run()
             

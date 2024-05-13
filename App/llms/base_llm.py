@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 
 class BaseLLM(ABC):
@@ -9,7 +8,7 @@ class BaseLLM(ABC):
         pass
 
     @abstractmethod
-    def format_prompt(self, user_prompt: str, sys_prompt: str) -> Any:
+    def format_prompt(self, user_prompt: str, sys_prompt: str):
         """Formats the user and system prompts into a format suitable for the LLM."""
         pass
 
