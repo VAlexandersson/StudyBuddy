@@ -1,4 +1,4 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, TextStreamer
+from transformers import AutoTokenizer, AutoModelForCausalLM
 from llms.base_llm import BaseLLM
 
 class HuggingFaceLLM(BaseLLM):
