@@ -137,6 +137,19 @@ class RAG:
 class BinaryGrade(BaseModel):
     score: str
 
+class Pipeline:
+    def __init__(self):
+        self.tasks = []
+    
+    def add_task(self, task):
+        self.tasks.append(task)
+    
+    def run(self, query):
+        data = query
+        for task in self.tasks:
+            data = task(data)
+        return data
+
 
 class StudyBuddy:
     def __init__(self):

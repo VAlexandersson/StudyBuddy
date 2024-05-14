@@ -1,5 +1,8 @@
 # Study-Buddy
 
+
+- **Note** it is currently dependent on a Cohere API key for its reranking.
+
 A RAG assisted LLM.
 
 RAG is utilizing some advanced techniques as:
@@ -9,5 +12,5 @@ RAG is utilizing some advanced techniques as:
 
 To have agentic behaviour.
 
-Is driven by multiple different NLP models like text generation, zero-shot classification and reranking.
+Is driven by multiple different NLP model tasks like text generation, zero-shot classification and reranking.
 
