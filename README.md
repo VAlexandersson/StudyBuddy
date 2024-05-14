@@ -1,16 +1,34 @@
 # Study-Buddy
 
+```
+study_buddy/
+│
+├── pipeline/
+│   ├── __init__.py
+│   ├── pipeline.py
+│   ├── tasks/
+│   │   ├── __init__.py
+│   │   ├── preprocess_query.py
+│   │   ├── classify_query.py
+│   │   ├── decompose_query.py
+│   │   ├── retrieve_documents.py
+│   │   ├── filter_documents.py
+│   │   ├── generate_response.py
+│   │   └── grade_response.py
+│
+├── models/
+│   ├── __init__.py
+│   ├── sentence_transformer.py
+│   ├── zero_shot_classifier.py
+│   ├── rag.py
+│   └── llm.py
+│
+├── utils/
+│   ├── __init__.py
+│   └── config.py
+│
+└── main.py
+```
 
-- **Note** it is currently dependent on a Cohere API key for its reranking.
-
-A RAG assisted LLM.
-
-RAG is utilizing some advanced techniques as:
-- Retrieved Document Reranking
-...
-
-
-To have agentic behaviour.
-
-Is driven by multiple different NLP model tasks like text generation, zero-shot classification and reranking.
+A complete rehaul of the architecture for better flexibility of the different task.
 
