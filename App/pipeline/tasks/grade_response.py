@@ -4,7 +4,6 @@ class GradeResponseTask(Task):
     def run(self, data):
         query = data["query"]
         response = data["response"]
-        # TODO logic
         grade = "A"  # Remove
         return {
             "query": query, 

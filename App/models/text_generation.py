@@ -54,7 +54,13 @@ class LLM:
 
     print(f"Loaded Text Generator model: {model_id}")
 
-  def generate_response(self, query, context=None, temperature: float = 0.7):
+
+  def generate_response(self, user: str, system: str, temperature: float = 0.7):
+    input_text = self.format_prompt(user, system)
+    response = self.inference(input_text, temperature)
+    return response
+
+  def inference(self, input_text, temperature: float = 0.7):
     """
     Generates a response based on the given query and optional context documents.
 
@@ -68,12 +74,9 @@ class LLM:
 
     """
 
-    # TODO Prompt template lib.
-    input_text = f"{query}\n\nContext for query:\n{context}"
-
     # Tokenize the input
     input_ids = self.tokenizer.apply_chat_template(
-      self.format_prompt(input_text, "Act as a teacher and provide an explanation for the following question:"),
+      input_text,
       add_generation_prompt=True,
       return_tensors='pt'
     )

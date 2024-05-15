@@ -26,11 +26,8 @@ class ReRankingTask(Task):
     print("\nSorted")
     for item in combined:
       print(f"Score: {round(item[0], 4)}\tDoc_ID: {item[1].id}")
-
-
+      
     documents = [item[1] for item in combined]
-
-
     
     return {
       "query": query, 
