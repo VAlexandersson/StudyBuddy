@@ -1,4 +1,4 @@
-data
+studybuddy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -14,7 +14,7 @@ build/
 develop-eggs/
 dist/
 downloads/
-eggs/
+eggs/mv env .env
 .eggs/
 lib/
 lib64/
@@ -129,5 +129,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-
-studybuddy

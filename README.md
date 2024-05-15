@@ -1,5 +1,18 @@
 # Study-Buddy
 
+Model: meta-llama/Meta-Llama-3-8B-Instruct
+
+## Papers:
+
+### Embeddings and Reranking:
+[Reranking Leaderboard](https://huggingface.co/spaces/AIR-Bench/leaderboard)
+
+[BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation](https://arxiv.org/abs/2402.03216)
+[Making Large Language Models A Better Foundation For Dense Retrieval](https://arxiv.org/abs/2312.15503)
+
+
+## Structure:
+
 ```
 study_buddy/
 │
