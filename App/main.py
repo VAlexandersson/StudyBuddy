@@ -22,11 +22,12 @@ def main():
   while True:
     query = input("> ")
     if query.lower() == "bye":
-      print("Goodbye!")
+      print("bye now!")
       break
 
     result = pipeline.run(query)
-    print(result)
+    print("\n\nQuery: ", query)
+    print("\n\nResponse:", result["response"])
 
 if __name__ == "__main__":
   main()

@@ -54,7 +54,7 @@ class LLM:
 
     print(f"Loaded Text Generator model: {model_id}")
 
-  def generate_response(self, query, documents=None, temperature: float = 0.7):
+  def generate_response(self, query, context=None, temperature: float = 0.7):
     """
     Generates a response based on the given query and optional context documents.
 
@@ -67,9 +67,6 @@ class LLM:
       str: The generated response.
 
     """
-
-    if documents:
-      context = "\n- ".join(documents)
 
     # TODO Prompt template lib.
     input_text = f"{query}\n\nContext for query:\n{context}"

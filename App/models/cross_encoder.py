@@ -1,4 +1,3 @@
-from typing import List
 from utils.singleton import Singleton
 from sentence_transformers import CrossEncoder
 
