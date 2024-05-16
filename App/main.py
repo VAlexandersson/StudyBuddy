@@ -1,3 +1,4 @@
+# App.main.py
 from pipeline.pipeline import Pipeline
 from pipeline.data_models import Query, Response
 from pipeline.tasks.preprocess_query import PreprocessQueryTask
@@ -23,8 +24,8 @@ def main():
 
   pipeline = Pipeline(tasks)
 
-  while True:
-    query = Query(text=input("> "))    
+  while True:    
+    query = Query(text=input("> "))
     if query.text.lower() == "bye":
       print("bye now!")
       break

@@ -1,12 +1,13 @@
 from pipeline.tasks import Task
-from pipeline.data_models import Query
+from pipeline.data_models import PipelineContext
 from models.zero_shot_classifier import ZeroShotClassifier
 
 class ClassifyQueryTask(Task):
     def __init__(self):
         self.classifier = ZeroShotClassifier()
 
-    def run(self, query: Query) -> Query:
-        classification = self.classifier.classify(query.text)
-        query.classification = classification
-        return query
+    def run(self, context: PipelineContext) -> PipelineContext:
+        classification = self.classifier.classify(context.query.text)
+        print(f"Classification: {classification}")
+        context.classification = classification
+        return context

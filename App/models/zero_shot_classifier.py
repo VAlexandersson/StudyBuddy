@@ -13,7 +13,6 @@ class ZeroShotClassifier:
     print(f"Loaded Zero-Shot Classifier model: {model_id}")
 
   def classify(self, query, labels = ["course_query", "general_query"]):
-
     output = cast(Dict[str, Any], self.zeroshot_classifier(
       query,
       labels,
