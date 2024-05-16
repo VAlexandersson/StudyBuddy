@@ -2,13 +2,14 @@ import json
 import chromadb
 from utils.singleton import Singleton
 from models.sentence_transformer import EmbeddingModel
-
+from db.data_loaders.json_loader import JSONDataLoader
 PRECHUNKED_DATA = [
     {
         "course": "Distributed System",
         "type": "book:Distributed Systems 4",
         "id_code": "ds4_",
-        "path": "/home/buddy/Study-Buddy/data/ds4.json"
+        "path": "/home/buddy/Study-Buddy/data/ds4.json",
+        "loader": JSONDataLoader
     },
 ]
 
@@ -26,39 +27,34 @@ class VectorDB():
     return self.collection
 
   def load_prechunked_data(self):
-    for data in PRECHUNKED_DATA:
-      print("Loading prechunked data")
-      with open(data["path"], 'r') as f:
-        chunks = json.load(f)
+    for data_source in PRECHUNKED_DATA:
+      print("Loading prechunked data_source")
+      loader = data_source["loader"]()
       chunked_data = {
         "static_metadata": {
-          "course": data["course"],
-          "type": data["type"],
-          "id_code": data["id_code"],
+          "course": data_source["course"],
+          "type": data_source["type"],
+          "id_code": data_source["id_code"],
         },
-        "chunks": chunks
+        "chunks": loader.load_data(data_source["path"])
       }
       self.embed_and_index(chunked_data)
 
-  def embed_and_index(self, data) -> None:
-    print("Embedding and indexing document chunks...")
-            
-    static_metadata = data["static_metadata"]
-    chunks = data["chunks"]
-    
-    # Extract text chunks from the chunks list
+  def _embed_chunks(self, chunks):
+    """Embed text chunks in batches."""
+    print("Embedding document chunks...")
     text_chunks = [chunk["Chunk"] for chunk in chunks]
-    
-    # Embed texts in batches
-    text_chunks_embeddings = self.embedding_model.encode_batch(
+    return self.embedding_model.encode_batch(
       text_chunks, 
       batch_size=32, 
       convert_to_tensor=True, 
       show_progress_bar=True
     )
-    
+
+  def _index_chunks(self, chunks: list, static_metadata: dict, embeddings: list):
+    """Index document chunks with metadata and embeddings."""
+    print("Indexing document chunks...")
     for i, chunk in enumerate(chunks):
-      
       metadata = {
         "course": static_metadata["course"],
         "type": static_metadata["type"],
@@ -66,15 +62,19 @@ class VectorDB():
       }
       document = chunk["Chunk"]
       doc_id = str(static_metadata["id_code"]) + str(chunk["OrderID"])
-      
-      # Chroma collection expects the embeddings parameter to be a list of lists
-      embedding_list = text_chunks_embeddings[i].tolist()
-      
+      embedding_list = embeddings[i].tolist()
       self.collection.add(
         embeddings=embedding_list,
         metadatas=[metadata],
         documents=[document],
         ids=[doc_id]
       )
-    
     print(f"Indexed {self.collection.count()} documents.")
+
+  def embed_and_index(self, data) -> None:
+    """Embed and index document chunks."""
+    print("Embedding and indexing document chunks...")
+    static_meta = data["static_metadata"]
+    chunks = data["chunks"]
+    embeddings = self._embed_chunks(chunks)
+    self._index_chunks(chunks, static_meta, embeddings)

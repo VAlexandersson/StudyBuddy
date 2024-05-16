@@ -1,5 +1,6 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from utils.singleton import Singleton
+from utils.format_prompt import format_prompt
 import torch
 
 
@@ -56,7 +57,7 @@ class LLM:
 
 
   def generate_response(self, user: str, system: str, temperature: float = 0.7):
-    input_text = self.format_prompt(user, system)
+    input_text = format_prompt(user, system)
     response = self.inference(input_text, temperature)
     return response
 
@@ -101,22 +102,3 @@ class LLM:
       skip_special_tokens=True
     )
     return text
-
-  def format_prompt(self, user: str, system: str):
-    """
-    Formats the user and system prompts into a message.
-
-    Args:
-      user (str): The user prompt.
-      system (str): The system prompt.
-
-    Returns:
-      list: The formatted message containing the user and system prompts.
-
-    """
-
-    message = [
-      {"role": "system", "content": system},
-      {"role": "user", "content": user}
-    ]
-    return message

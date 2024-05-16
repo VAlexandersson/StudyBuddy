@@ -1,3 +1,7 @@
+from config.prompt_library import RELEVANCE_PROMPT, STANDARD_PROMPT, PROMPT
+
+
+
 def format_prompt(user: str, system: str) -> list[dict[str, str]]:
   """
   Formats the user and system prompts into a message.

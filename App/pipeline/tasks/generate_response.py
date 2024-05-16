@@ -27,6 +27,8 @@ class GenerateResponseTask(Task):
     
     
     response = self.llm.generate_response(user.format(query, context), system)
+
+    print("\n\nResponse: ", response)
     
     return {
       "query": query, 

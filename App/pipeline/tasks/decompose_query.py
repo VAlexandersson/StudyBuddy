@@ -7,6 +7,8 @@ class DecomposeQueryTask(Task):
 
   def run(self, data):
     query = data["query"]
+
+    
     decomposed_query = self.llm.generate_response(query, ["Decompose the query into its constituent parts."])
 
     return {
