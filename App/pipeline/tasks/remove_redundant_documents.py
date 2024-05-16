@@ -4,24 +4,21 @@ from models.text_generation import LLM
 from utils.binary_grade import binary_grade
 from utils.format_prompt import format_prompt
 from config.prompt_library import RELEVANCE_PROMPT
-from pipeline.data_models import ReRankedDocuments, GradedDocuments 
+from pipeline.data_models import PipelineContext 
 
 class DocumentRemoval(Task):
   def __init__(self):
     self.llm = LLM()
 
-  def run(self, reranked_documents: ReRankedDocuments) -> GradedDocuments:
-    
+  def run(self, context: PipelineContext) -> PipelineContext:
     user_prompt, system_prompt = RELEVANCE_PROMPT
-    query = reranked_documents.query.text
-    documents = reranked_documents.documents
-
-    grades = []
-    for context in documents:
+    context.retrieved_documents.ignore = []
+    for doc in context.retrieved_documents.documents:
       prompt = format_prompt(
-        user = user_prompt.format(context.document, query), 
+        user = user_prompt.format(doc, context.query.text), 
         system=system_prompt
       )
-      grades.append(binary_grade(prompt).score)
-    print(grades)
-    return GradedDocuments(query=reranked_documents.query, documents=documents, grades=grades)
+      context.retrieved_documents.ignore.append(binary_grade(prompt).score)
+    print(context.retrieved_documents.ignore)
+    #GradedDocuments(query=context.query, documents=documents, grades=grades)
+    return context

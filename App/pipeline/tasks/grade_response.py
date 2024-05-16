@@ -1,8 +1,10 @@
 from pipeline.tasks import Task
-from pipeline.data_models import Response
+from pipeline.data_models import PipelineContext
 # TODO Implement the logic
 class GradeResponseTask(Task):
-  def run(self, response: Response) -> Response:
+  def __init__(self):
+    pass
+  def run(self, context: PipelineContext) -> PipelineContext:
     print("Grade")
-    response.grade = "A"
-    return response
+    context.response.grade = "A"
+    return context

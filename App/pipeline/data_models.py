@@ -14,13 +14,12 @@ class Query(BaseModel):
     decomposed_parts: Optional[List[str]] = None
 
 class RetrievedDocuments(BaseModel):
-    query: Query 
     documents: List[DocumentObject]
-    original_order: List[str]
-    unfiltered_documents: List[DocumentObject]
+    original_order: Optional[List[str]] = None
+    ignore: Optional[List[str]] = None
+    filtered_documents: Optional[List[DocumentObject]] = None
     
 class Response(BaseModel):
-    query: Query
     text: str
     grade: Optional[str] = None
 
@@ -29,15 +28,5 @@ class PipelineContext(BaseModel):
     retrieved_documents: Optional[RetrievedDocuments] = None
     response: Optional[Response] = None
     last_task: Optional[str] = "PreprocessQueryTask"
-
-
-
-
-class ReRankedDocuments(BaseModel):
-    query: Query
-    documents: List[DocumentObject]
-
-class GradedDocuments(BaseModel):
-    query: Query
-    documents: List[DocumentObject]
-    grades: List[str]
+    routing_key: Optional[str] = None
+    

@@ -9,5 +9,6 @@ class ClassifyQueryTask(Task):
     def run(self, context: PipelineContext) -> PipelineContext:
         classification = self.classifier.classify(context.query.text)
         print(f"Classification: {classification}")
-        context.classification = classification
+        context.query.classification = classification
+        context.routing_key = classification
         return context

@@ -11,28 +11,31 @@ from pipeline.tasks.grade_response import GradeResponseTask
 from study_buddy import StudyBuddy
 
 def initialize_components():
-    tasks = [
-        PreprocessQueryTask(),
-        ClassifyQueryTask(),
-        DecomposeQueryTask(),
-        RetrieveDocumentsTask(),
-        ReRankingTask(),
-        DocumentRemoval(),
-        GenerateResponseTask(),
-        GradeResponseTask(),
-    ]
-    return StudyBuddy(tasks)
+  tasks = [
+    PreprocessQueryTask(),
+    ClassifyQueryTask(),
+    DecomposeQueryTask(),
+    RetrieveDocumentsTask(),
+    ReRankingTask(),
+    DocumentRemoval(),
+    GenerateResponseTask(),
+    GradeResponseTask(),
+  ]
+  return StudyBuddy(tasks)
 
 def main():
-    study_buddy = initialize_components()
-    while True:    
-        query = Query(text=input("> "))    
-        if query.text.lower() == "bye":
-            print("bye now!")
-            break
-        response: Response = study_buddy.run(query)
-        print("\n\nQuery: ", query)
-        print("\n\nResponse:", response.text)
+  study_buddy = initialize_components()
+  while True:  
+    query=Query(text=input("> "))
+      
+    if query.text.lower() == "bye":
+      print("bye now!")
+      break
+    response: Response  = study_buddy.run(query)
+    if not response:
+      continue
+    print("\n\nQuery: ", query.text)
+    print("\n\nResponse:", response.text)
 
 if __name__ == "__main__":
   main()

@@ -13,7 +13,7 @@ class StudyBuddy:
     context = PipelineContext(query=query)
     while True:
       task_name = self.router.get_next_task(context)
-      if task_name is None:
+      if task_name is None or task_name == "EndTask":
         break
       task = self.pipeline.get_task(task_name)
       if task is None:
