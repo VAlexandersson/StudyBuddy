@@ -1,0 +1,288 @@
+// App/pipeline/__init__.py
+
+// App/pipeline/pipeline.py
+# App/pipeline/pipeline.py
+from typing import List, Dict, Any
+from pipeline.tasks import Task
+from pipeline.router import Router
+
+class Pipeline:
+  """Manages the execution of tasks in a pipeline."""
+  def __init__(self, tasks: List[Task]):
+    self.router = Router(tasks)
+
+  def run(self, query: str) -> Dict[str, Any]:
+    data = query
+    while True: 
+      task = self.router.get_next_task(data)
+      if task is None:
+        break
+      print(f"Running task: {type(task).__name__}")
+      data = task.run(data)
+    return data
+
+// App/pipeline/router.py
+# App/pipeline/router.py
+from typing import Dict, Any, List
+from pipeline.tasks import Task
+import yaml
+
+class Router:
+  """Routes the pipeline execution based on task results."""
+
+  def __init__(self, tasks: List[Task]):
+    self.tasks = tasks
+    self.current_task_index = -1
+    self.routing_rules = {
+      "PreprocessQueryTask": "ClassifyQueryTask",
+      ("ClassifyQueryTask", "course_query"): "DecomposeQueryTask",
+      ("ClassifyQueryTask", "general_query"): "RetrieveDocumentsTask",
+      "DecomposeQueryTask": "RetrieveDocumentsTask",
+      "RetrieveDocumentsTask": "ReRankingTask",
+      "ReRankingTask": "DocumentRemoval",
+      "DocumentRemoval": "GenerateResponseTask",
+      "GenerateResponseTask": "GradeResponseTask",
+      "GradeResponseTask": None,  # Termination
+    }
+
+  def get_next_task(self, data: Dict[str, Any]) -> Task:
+    """
+    Determines the next task to execute based on the pipeline data.
+    Uses routing rules to determine the next task in the sequence.
+    """
+
+    self.current_task_index += 1
+
+    if self.current_task_index == 0:
+      next_task_name = "PreprocessQueryTask"
+    else: 
+      last_task_name = type(self.tasks[self.current_task_index - 1]).__name__ 
+      # Determine the routing key
+      if last_task_name == "ClassifyQueryTask":
+        routing_key = (last_task_name, data.get("classification"))
+      else:
+        routing_key = last_task_name
+
+      next_task_name = self.routing_rules.get(routing_key)
+
+    if next_task_name is None:
+      return None  # Terminate the pipeline
+    
+    # Find and return the next task by name 
+    next_task = next(task for task in self.tasks if type(task).__name__ == next_task_name)
+    return next_task
+
+// App/pipeline/tasks/__init__.py
+class Task:
+    def run(self, data):
+        raise NotImplementedError("Subclasses must implement the 'run' method.")
+
+// App/pipeline/tasks/classify_query.py
+from pipeline.tasks import Task
+from models.zero_shot_classifier import ZeroShotClassifier
+
+class ClassifyQueryTask(Task):
+    def __init__(self):
+        self.classifier = ZeroShotClassifier()
+
+    def run(self, query):
+        classification = self.classifier.classify(query)
+        return {"query": query, "classification": classification}
+
+// App/pipeline/tasks/decompose_query.py
+from pipeline.tasks import Task
+from models.text_generation import LLM
+
+class DecomposeQueryTask(Task):
+  def __init__(self):
+    self.llm = LLM()
+
+  def run(self, data):
+    query = data["query"]
+
+    
+    decomposed_query = self.llm.generate_response(query, ["Decompose the query into its constituent parts."])
+
+    return {
+        "query": query, 
+        "decomposed_query": decomposed_query, 
+        "classification": data["classification"]
+    }
+
+// App/pipeline/tasks/generate_response.py
+from config.prompt_library import STANDARD_PROMPT
+from pipeline.tasks import Task
+from models.text_generation import LLM
+from pprint import pprint
+from utils.concat_documents import concat_documents
+
+class GenerateResponseTask(Task):
+  def __init__(self):
+    self.llm = LLM()
+    
+  def run(self, data):
+    user, system = STANDARD_PROMPT
+    
+    query = data["query"]
+    reranked_documents = data["reranked_documents"]
+    grades = data["grades"]
+    classifications = data["classification"]
+    
+    # pprint(reranked_documents)
+    # top_documents = [doc.document for doc in reranked_documents[:4]]
+    # context = "\n- ".join(top_documents)
+    for i, doc in enumerate(reranked_documents):
+      print(f"{i}( grade:{grades[i]} ):\n| Type:{classifications}\t{query}\n{doc.document}\n\n")
+      
+    context = concat_documents(reranked_documents)
+    
+    
+    
+    response = self.llm.generate_response(user.format(query, context), system)
+
+    print("\n\nResponse: ", response)
+    
+    return {
+      "query": query, 
+      "response": response, 
+      "reranked_documents": reranked_documents, 
+      "decomposed_query": data["decomposed_query"], 
+      "classification": data["classification"]
+    }
+
+// App/pipeline/tasks/grade_response.py
+from pipeline.tasks import Task
+
+class GradeResponseTask(Task):
+  def run(self, data):
+    print("Grade")
+    query = data["query"]
+    response = data["response"]
+    
+    grade = "A"  # Remove
+
+    return {
+        "query": query, 
+        "response": response, 
+        "grade": grade, 
+        "reranked_documents": data["reranked_documents"], 
+        "decomposed_query": data["decomposed_query"], 
+        "classification": data["classification"]
+    }
+
+// App/pipeline/tasks/preprocess_query.py
+from pipeline.tasks import Task
+from utils.text_preprocessing import preprocess_text
+
+class PreprocessQueryTask(Task):
+  def run(self, query):
+    print("\t\t--Preprocess--", {__name__})
+    preprocessed_query = preprocess_text(query)
+    return preprocessed_query
+
+// App/pipeline/tasks/remove_redundant_documents.py
+from config.prompt_library import RELEVANCE_PROMPT
+from pipeline.tasks import Task
+from models.text_generation import LLM
+from utils.binary_grade import binary_grade
+from utils.format_prompt import format_prompt
+
+
+class DocumentRemoval(Task):
+  def __init__(self):
+    self.llm = LLM()
+
+  def run(self, data):
+    user_prompt, system_prompt = RELEVANCE_PROMPT
+    query = data['query']
+    documents = data['reranked_documents']
+    #reranked_documents = [doc.document for doc in data['reranked_documents']]
+    #context = "\n- ".join(reranked_documents)
+    grades = []
+    for context in documents:
+      prompt = format_prompt(user = user_prompt.format(context.document, query), system=system_prompt)
+      grades.append(binary_grade(prompt))
+
+    print(grades)
+    return {
+      "query": query, 
+      "reranked_documents": documents,
+      "grades": grades,
+      "decomposed_query": data["decomposed_query"], 
+      "classification": data["classification"]
+    }
+
+    #return [doc for doc in documents if not doc.get('redundant')]
+
+// App/pipeline/tasks/rerank_documents.py
+from pipeline.tasks import Task
+from models.cross_encoder import ReRankerModel
+
+
+class ReRankingTask(Task):
+  def __init__(self):
+    self.cross_encoder = ReRankerModel()
+
+  def run(self, data, top_k=10):
+    query = data["query"]
+    documents = data["retrieved_documents"]
+
+    query_doc_pairs = [(query, doc.document) for doc in documents]
+    scores = self.cross_encoder.predict(query_doc_pairs)
+
+    print(scores)
+
+    combined = list(zip(scores, documents))
+
+    print("Unsorted")
+    for item in combined:
+      print(f"Score: {round(item[0], 4)}\tDoc_ID: {item[1].id}")
+
+    combined.sort(key=lambda x: x[0], reverse=True)
+
+    print("\nSorted")
+    for item in combined:
+      print(f"Score: {round(item[0], 4)}\tDoc_ID: {item[1].id}")
+      
+    documents = [item[1] for item in combined]
+    
+    return {
+      "query": query, 
+      "reranked_documents": documents, 
+      "decomposed_query": data["decomposed_query"], 
+      "classification": data["classification"]
+    }
+
+// App/pipeline/tasks/retrieve_documents.py
+from pipeline.tasks import Task
+from db.knowledge_base import VectorDB
+from objects.document import DocumentObject
+from models.sentence_transformer import EmbeddingModel
+
+
+class RetrieveDocumentsTask(Task):
+  def __init__(self):
+    self.sentence_transformer = EmbeddingModel()
+    self.collection = VectorDB().get_collection()
+
+  def run(self, data, top_k=10):
+    query = data["query"]
+
+    retrieved_documents = self.collection.query(
+      query_embeddings=[
+        self.sentence_transformer.encode(query)], 
+      n_results=top_k
+    )
+    docs = retrieved_documents["documents"][0]
+    ids = retrieved_documents["ids"][0]
+    metadatas = retrieved_documents["metadatas"][0]
+    documents = [DocumentObject(id=id, document=doc, metadatas=metadata) 
+                     for id, doc, metadata in zip(ids, docs, metadatas)]
+
+    return {
+      "query": query, 
+      "retrieved_documents": documents, 
+      "decomposed_query": data["decomposed_query"], 
+      "classification": data["classification"]
+    }
+

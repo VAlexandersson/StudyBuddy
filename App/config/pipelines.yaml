@@ -1,0 +1,33 @@
+# App/config/pipelines.yaml
+pipelines:
+  - rag_pipeline: 
+    - task: RetrieveDocumentsTask
+    - task: ReRankingTask
+    - task: DocumentRemoval
+    
+  course_query_pipeline:
+    - task: DecomposeQueryTask
+    - task: RetrieveDocumentsTask
+    - task: ReRankingTask
+    - task: DocumentRemoval
+    - task: GenerateResponseTask
+    - task: GradeResponseTask
+
+  general_query_pipeline:
+    - task: RetrieveDocumentsTask
+    - task: ReRankingTask
+    - task: DocumentRemoval
+    - task: GenerateResponseTask
+    - task: GradeResponseTask
+
+routing:
+  - condition:
+      task: ClassifyQueryTask
+      output: classification
+      value: course_query
+    pipeline: course_query_pipeline
+  - condition:
+      task: ClassifyQueryTask
+      output: classification
+      value: general_query
+    pipeline: general_query_pipeline

@@ -1,18 +1,8 @@
 from pipeline.tasks import Task
-
+from pipeline.data_models import Response
+# TODO Implement the logic
 class GradeResponseTask(Task):
-  def run(self, data):
+  def run(self, response: Response) -> Response:
     print("Grade")
-    query = data["query"]
-    response = data["response"]
-    
-    grade = "A"  # Remove
-
-    return {
-        "query": query, 
-        "response": response, 
-        "grade": grade, 
-        "reranked_documents": data["reranked_documents"], 
-        "decomposed_query": data["decomposed_query"], 
-        "classification": data["classification"]
-    }
+    response.grade = "A"
+    return response

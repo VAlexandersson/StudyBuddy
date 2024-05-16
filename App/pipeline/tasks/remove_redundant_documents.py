@@ -1,32 +1,27 @@
-from config.prompt_library import RELEVANCE_PROMPT
+# App.pipeline.tasks.remove_redundant_documents.py
 from pipeline.tasks import Task
 from models.text_generation import LLM
 from utils.binary_grade import binary_grade
 from utils.format_prompt import format_prompt
-
+from config.prompt_library import RELEVANCE_PROMPT
+from pipeline.data_models import ReRankedDocuments, GradedDocuments 
 
 class DocumentRemoval(Task):
   def __init__(self):
     self.llm = LLM()
 
-  def run(self, data):
+  def run(self, reranked_documents: ReRankedDocuments) -> GradedDocuments:
+    
     user_prompt, system_prompt = RELEVANCE_PROMPT
-    query = data['query']
-    documents = data['reranked_documents']
-    #reranked_documents = [doc.document for doc in data['reranked_documents']]
-    #context = "\n- ".join(reranked_documents)
+    query = reranked_documents.query.text
+    documents = reranked_documents.documents
+
     grades = []
     for context in documents:
-      prompt = format_prompt(user = user_prompt.format(context.document, query), system=system_prompt)
-      grades.append(binary_grade(prompt))
-
+      prompt = format_prompt(
+        user = user_prompt.format(context.document, query), 
+        system=system_prompt
+      )
+      grades.append(binary_grade(prompt).score)
     print(grades)
-    return {
-      "query": query, 
-      "reranked_documents": documents,
-      "grades": grades,
-      "decomposed_query": data["decomposed_query"], 
-      "classification": data["classification"]
-    }
-
-    #return [doc for doc in documents if not doc.get('redundant')]
+    return GradedDocuments(query=reranked_documents.query, documents=documents, grades=grades)
