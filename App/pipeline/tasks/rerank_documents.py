@@ -20,7 +20,7 @@ class ReRankingTask(Task):
     
     combined.sort(key=lambda x: x[0], reverse=True)
     
-    documents = [item[1] for item in combined[:top_k]]
+    documents = [item[1] for item in combined]
     
     return context
 

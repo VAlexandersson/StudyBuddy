@@ -12,7 +12,6 @@ class DocumentRemoval(Task):
 
   def run(self, context: PipelineContext) -> PipelineContext:
     user_prompt, system_prompt = RELEVANCE_PROMPT
-    context.retrieved_documents.ignore = []
     for doc in context.retrieved_documents.documents:
       prompt = format_prompt(
         user = user_prompt.format(doc, context.query.text), 
@@ -20,5 +19,11 @@ class DocumentRemoval(Task):
       )
       context.retrieved_documents.ignore.append(binary_grade(prompt).score)
     print(context.retrieved_documents.ignore)
-    #GradedDocuments(query=context.query, documents=documents, grades=grades)
+
+    self.filter_documents(context)
     return context
+
+  def filter_documents(self, context):
+    no_indices = [i for i, x in enumerate(context.retrieved_documents.ignore) if x == 'no']
+    context.retrieved_documents.filtered_documents = [context.retrieved_documents.documents[i] for i in no_indices]
+    context.retrieved_documents.documents = [doc for i, doc in enumerate(context.retrieved_documents.documents) if i not in no_indices]

@@ -18,12 +18,12 @@ class Router:
           None: "RetrieveDocumentsTask",
       },
       "RetrieveDocumentsTask": {
-          None: "ReRankingTask"
-      },
-      "ReRankingTask": {
           None: "DocumentRemoval"
       },
       "DocumentRemoval": {
+          None: "ReRankingTask"
+      },
+      "ReRankingTask": {
           None: "GenerateResponseTask"
       },
       "GenerateResponseTask": {

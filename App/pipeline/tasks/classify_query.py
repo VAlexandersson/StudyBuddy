@@ -7,8 +7,16 @@ class ClassifyQueryTask(Task):
         self.classifier = ZeroShotClassifier()
 
     def run(self, context: PipelineContext) -> PipelineContext:
-        classification = self.classifier.classify(context.query.text)
+        classification = self.classifier.classify(
+          context.query.text, 
+          labels = [
+            "course_query",
+            "general_query"
+            ]
+          )
         print(f"Classification: {classification}")
         context.query.classification = classification
         context.routing_key = classification
         return context
+
+      

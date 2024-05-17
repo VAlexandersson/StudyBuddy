@@ -9,24 +9,26 @@ class DocumentObject(BaseModel):
     metadatas: Dict
     
 class Query(BaseModel):
-    text: str
+    text: str = ""
     classification: Optional[str] = None 
-    decomposed_parts: Optional[List[str]] = None
+    decomposed_parts: Optional[List[str]] = []
 
 class RetrievedDocuments(BaseModel):
-    documents: List[DocumentObject]
-    original_order: Optional[List[str]] = None
-    ignore: Optional[List[str]] = None
-    filtered_documents: Optional[List[DocumentObject]] = None
+    documents: List[DocumentObject] = []
+    original_order: Optional[List[str]] = []
+    ignore: Optional[List[str]] = []
+    filtered_documents: Optional[List[DocumentObject]] = []
+    def get_text(self):
+      return "\n-  ".join([doc.document for doc in self.documents])
     
 class Response(BaseModel):
-    text: str
+    text: str = ""
     grade: Optional[str] = None
 
 class PipelineContext(BaseModel):
-    query: Query
-    retrieved_documents: Optional[RetrievedDocuments] = None
-    response: Optional[Response] = None
+    query: Query = Query()
+    retrieved_documents: Optional[RetrievedDocuments] = RetrievedDocuments()
+    response: Optional[Response] = Response()
     last_task: Optional[str] = "PreprocessQueryTask"
     routing_key: Optional[str] = None
     
