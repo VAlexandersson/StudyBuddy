@@ -1,6 +1,6 @@
 # Study-Buddy
 
-Title: Study Buddy: An AI-Powered Chatbot for Student Assistance
+Study Buddy: An AI-Powered Chatbot for Student Assistance
 
 1. Introduction
    - Study Buddy is an AI chatbot designed to assist students by answering questions and providing relevant information.
@@ -16,13 +16,13 @@ Title: Study Buddy: An AI-Powered Chatbot for Student Assistance
  
     3.3. Dynamic Routing
 
-       3.3.1. For "course_query":
+    3.3.1. For "course_query":
          - Retrieval-Augmented Generation (RAG) approach is used.
          - Relevant documents are fetched from a knowledge base.
          - Redundant or less relevant documents are removed to enhance efficiency.
          - Remaining documents are reordered based on their relevance to the query.
        
-       3.3.2. For "general_query":
+    3.3.2. For "general_query":
          - The RAG process is skipped, and the chatbot proceeds directly to response generation.
     3.4. Generate Response
       - The chatbot generates a textual response using a language model (LLM).
