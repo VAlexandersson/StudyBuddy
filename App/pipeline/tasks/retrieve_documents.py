@@ -1,24 +1,21 @@
-from pipeline.tasks import Task
+# pipeline/tasks/retrieve_documents.py
 from db.knowledge_base import VectorDB
-from models.sentence_transformer import EmbeddingModel
 from pipeline.data_models import PipelineContext, RetrievedDocuments, DocumentObject
+from models.sentence_transformer import EmbeddingModel
+
+from pipeline.tasks import Task
 
 
-class RetrieveDocumentsTask(Task):
-  def __init__(self):
-    self.sentence_transformer = EmbeddingModel()
-    self.collection = VectorDB().get_collection()
-
-  def run(self, context: PipelineContext, top_k=10):
-
+def retrieve_documents(context: PipelineContext) -> PipelineContext:
+    sentence_transformer = EmbeddingModel()
+    collection = VectorDB().get_collection()
 
     # TODO if decomposed_query, retrieve documents for each part of the query
-    retrieved_documents = self.collection.query(
-      query_embeddings=[
-        self.sentence_transformer.encode(context.query.text)], 
-      n_results=top_k
-    )
-
+    retrieved_documents = collection.query(
+        query_embeddings=[
+          sentence_transformer.encode(context.query.text)], 
+        n_results=10 # top_k?
+      )
     
     docs = retrieved_documents["documents"][0]
     ids = retrieved_documents["ids"][0]
@@ -34,5 +31,13 @@ class RetrieveDocumentsTask(Task):
 
     print("Retrieved documents.")
     context.retrieved_documents = retrieved_documents
-
     return context
+
+
+RetrieveDocumentsTask = Task(
+  name="RetrieveDocumentsTask",
+  function=retrieve_documents,
+  next_tasks={
+      None: "DocumentRemovalTask"
+  }
+) 

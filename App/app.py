@@ -5,21 +5,21 @@ from pipeline.tasks.classify_query import ClassifyQueryTask
 from pipeline.tasks.decompose_query import DecomposeQueryTask
 from pipeline.tasks.retrieve_documents import RetrieveDocumentsTask
 from pipeline.tasks.rerank_documents import ReRankingTask
-from pipeline.tasks.remove_redundant_documents import DocumentRemoval 
+from pipeline.tasks.filter_redundant_documents import FilterDocumentsTask
 from pipeline.tasks.generate_response import GenerateResponseTask
 from pipeline.tasks.grade_response import GradeResponseTask
 from study_buddy import StudyBuddy
 
 def initialize_components():
   tasks = [
-    PreprocessQueryTask(),
-    ClassifyQueryTask(),
-    DecomposeQueryTask(),
-    RetrieveDocumentsTask(),
-    ReRankingTask(),
-    DocumentRemoval(),
-    GenerateResponseTask(),
-    GradeResponseTask(),
+    PreprocessQueryTask,
+    ClassifyQueryTask,
+    DecomposeQueryTask,
+    RetrieveDocumentsTask,
+    ReRankingTask,
+    FilterDocumentsTask,
+    GenerateResponseTask,
+    GradeResponseTask,
   ]
   return StudyBuddy(tasks)
 
@@ -31,7 +31,7 @@ def main():
     if query.text.lower() == "bye":
       print("bye now!")
       break
-    response: Response  = study_buddy.run(query)
+    response: Response  = study_buddy.run(query).response
     if not response:
       continue
     print("\n\nQuery: ", query.text)
