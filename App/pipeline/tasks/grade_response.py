@@ -18,6 +18,6 @@ GradeResponseTask = Task(
   name="GradeResponseTask",
   function=grade_response,
   next_tasks={
-      None: "EndTask"
+      None: "EndTask" # TODO if grade is bad. ask user if they want you to search the web 
   }
 )

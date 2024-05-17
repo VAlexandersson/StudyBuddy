@@ -4,7 +4,7 @@ from models.zero_shot_classifier import ZeroShotClassifier
 
 from pipeline.tasks import Task
 
-
+# TODO Dont feed labels only, feed labels that are mapped to the routing keys
 def classify_query(context: PipelineContext) -> PipelineContext:
     classifier = ZeroShotClassifier()
     classification = classifier.classify(
