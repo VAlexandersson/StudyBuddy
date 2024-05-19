@@ -2,7 +2,10 @@
 
 ### Introduction
 
-Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses a flexible pipeline architecture, leveraging language models and information retrieval techniques to provide relevant and informative responses to user queries. 
+Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses RAG-module to deliver factoid and relative information. The RAG-module is designed with a pipeline architecture in mind with some routing. It has also been desinged with flexability in mind. 
+
+INSERT A DIAGRAM HERE <.<
+
 
 ### Features
 
@@ -27,10 +30,6 @@ The chatbot follows a modular pipeline structure:
 ### Configuration
 
 The pipeline's behavior and routing rules can be easily modified using an external YAML configuration file. This provides flexibility to customize the chatbot for specific use cases.
-
-### Getting Started
-
-*(Add instructions on how to install, configure, and run the chatbot here.)*
 
 ### Future Directions
 

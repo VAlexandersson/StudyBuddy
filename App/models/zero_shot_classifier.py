@@ -12,11 +12,11 @@ class ZeroShotClassifier:
     )
     print(f"Loaded Zero-Shot Classifier model: {model_id}")
 
-  def classify(self, query, labels = ["question", "statement", "greeting", "goodbye"]):
+  def classify(self, query, labels, hypothesis_template, multi_label=True):
     output = cast(Dict[str, Any], self.zeroshot_classifier(
       query,
       labels,
-      hypothesis_template="This prompt is a {}",
-      multi_label=True,
+      hypothesis_template=hypothesis_template,
+      multi_label=multi_label,
     ))
     return output

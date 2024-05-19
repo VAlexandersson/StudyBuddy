@@ -11,9 +11,8 @@ from pipeline.tasks.grade_response import GradeResponseTask
 from study_buddy import StudyBuddy
 
 import logging
-# Configure the logger
 logging.basicConfig(
-    level=logging.DEBUG,  # Show DEBUG level and above 
+    level=logging.DEBUG, 
     format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s'
 )
 logger = logging.getLogger(__name__)

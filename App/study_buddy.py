@@ -9,7 +9,7 @@ class StudyBuddy:
 
   def run(self, query: Query, logger: Logger) -> PipelineContext:
     context = PipelineContext(query=query)
-    current_task = self.tasks["PreprocessQueryTask"] # starting task
+    current_task = self.tasks["PreprocessQueryTask"] 
 
     while current_task:
       context = current_task.run(context, logger)
