@@ -29,7 +29,7 @@ ClassifyQueryTask = Task(
   name="ClassifyQueryTask",
   function=classify_query,
   next_tasks={
-      "rag": "RetrieveDocumentsTask", #"DecomposeQueryTask",
-      "general": "GenerateResponseTask",
+    "rag": "EmbedQueryTask", #"DecomposeQueryTask",
+    "general": "GenerateResponseTask",
   }
 )

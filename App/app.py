@@ -3,6 +3,7 @@ from pipeline.data_models import Query, Response
 from pipeline.tasks.preprocess_query import PreprocessQueryTask
 from pipeline.tasks.classify_query import ClassifyQueryTask
 from pipeline.tasks.decompose_query import DecomposeQueryTask
+from pipeline.tasks.embed_query import EmbedQueryTask
 from pipeline.tasks.retrieve_documents import RetrieveDocumentsTask
 from pipeline.tasks.rerank_documents import ReRankingTask
 from pipeline.tasks.filter_redundant_documents import FilterDocumentsTask
@@ -22,6 +23,7 @@ def initialize_components():
     PreprocessQueryTask,
     ClassifyQueryTask,
     DecomposeQueryTask,
+    EmbedQueryTask,
     RetrieveDocumentsTask,
     ReRankingTask,
     FilterDocumentsTask,
