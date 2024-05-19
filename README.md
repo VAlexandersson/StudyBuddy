@@ -1,53 +1,42 @@
-# Study-Buddy
+## Study Buddy
 
-Title: Study Buddy: An AI-Powered Chatbot for Student Assistance
+### Introduction
 
-1. Introduction
-   - Study Buddy is an AI chatbot designed to assist students by answering questions and providing relevant information.
-2. Input
-   - The chatbot accepts user queries in text format.
-3. Pipeline Processing
+Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses a flexible pipeline architecture, leveraging language models and information retrieval techniques to provide relevant and informative responses to user queries. 
 
-    3.1. Preprocess Query
-     - The input query is cleaned and standardized to optimize processing.
- 
-    3.2. Classify Query
-     - The chatbot classifies the query as either "course_query" (related to specific coursework) or "general_query" (more general knowledge).
- 
-    3.3. Dynamic Routing
+### Features
 
-       3.3.1. For "course_query":
-         - Retrieval-Augmented Generation (RAG) approach is used.
-         - Relevant documents are fetched from a knowledge base.
-         - Redundant or less relevant documents are removed to enhance efficiency.
-         - Remaining documents are reordered based on their relevance to the query.
-       
-       3.3.2. For "general_query":
-         - The RAG process is skipped, and the chatbot proceeds directly to response generation.
-    3.4. Generate Response
-      - The chatbot generates a textual response using a language model (LLM).
-      - The response considers the query and relevant documents (if applicable).
-  
-    3.5. Grade Response
-      - The generated response is assessed for quality and potential hallucinations (factual inaccuracies) using the LLM.
+- **Curriculum-Specific Knowledge:** The chatbot can be customized with a knowledge base containing information relevant to specific courses or academic subjects.
+- **Retrieval-Augmented Generation (RAG):** For course-related queries, the chatbot employs RAG to retrieve and process relevant documents from the knowledge base before generating a response. 
+- **General Knowledge Queries:** The chatbot can also answer more general knowledge questions.
+- **Dynamic Routing:** A flexible routing mechanism allows the chatbot to adapt its processing pipeline based on the type of query and other contextual factors. 
+- **Response Grading:** The chatbot uses language models to assess the quality of its generated responses, checking for factual accuracy and potential hallucinations.
+- **Configurable Pipeline:**  An external YAML configuration file makes it easy to customize the chatbot's behavior and routing rules without modifying the code.
 
-4. Output
+### Architecture
 
-   - The chatbot presents the generated response to the user.
-   - A grade indicating the response's quality is provided.
+The chatbot follows a modular pipeline structure:
 
-5. Configurable Pipeline
-   - The chatbot's pipeline is highly configurable through:
-     - Dedicated Context Methods: Enable organized and readable data management within the pipeline.
-     - Dynamic Routing: Control the pipeline flow based on query type and other conditions.
-     - External Configuration: Routing rules are defined in a YAML file for easy modification without code changes.
-6. Future Enhancements
+1.  **Preprocessing:** The user query is cleaned and standardized.
+2.  **Classification:** The query is classified into different categories (e.g., "course\_query", "general\_query"). 
+3.  **Dynamic Routing:** The pipeline flow is directed based on the query classification and other criteria. 
+4.  **RAG Task (Optional):** If RAG is triggered, relevant documents are retrieved, filtered, and ranked. 
+5.  **Response Generation:** A language model generates a response based on the query and any relevant documents.
+6.  **Response Grading:**  The generated response is evaluated for quality.
 
-   - More Complex Routing Logic: Introduce intricate routing rules based on user preferences, query complexity, or data availability.
-   - User Profiles: Incorporate user-specific information to personalize responses.
-   - Interactive Learning: Make the chatbot more interactive by asking clarifying questions or suggesting learning resources based on user responses.
+### Configuration
 
+The pipeline's behavior and routing rules can be easily modified using an external YAML configuration file. This provides flexibility to customize the chatbot for specific use cases.
 
+### Getting Started
+
+*(Add instructions on how to install, configure, and run the chatbot here.)*
+
+### Future Directions
+
+-  Enhance the dynamic routing with more sophisticated rules and conditions.
+-  Incorporate user profiles to personalize the responses. 
+-  Develop an interactive learning mode, engaging users with follow-up questions and learning resources. 
 ## Papers:
 
 | Paper                                                                                                 | link                             |

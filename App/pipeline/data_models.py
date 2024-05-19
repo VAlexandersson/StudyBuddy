@@ -1,7 +1,6 @@
 # App/pipeline/data_models.py
 from pydantic import BaseModel
-from typing import List, Optional, Dict
-
+from typing import List, Dict, Any, Optional
 
 class DocumentObject(BaseModel):
     id: str
@@ -12,7 +11,7 @@ class DocumentObject(BaseModel):
     
 class Query(BaseModel):
     text: str = ""
-    classification: Optional[str] = None 
+    label: Optional[str] = None 
     decomposed_parts: Optional[List[str]] = []
 
 
@@ -43,4 +42,10 @@ class PipelineContext(BaseModel):
     response: Optional[Response] = Response()
     last_task: Optional[str] = "PreprocessQueryTask"
     routing_key: Optional[str] = None
-    
+    response_type: Optional[str] = None
+
+    task_history: List[Dict[str, Any]] = []
+
+    def add_to_history(self, task_name: str, output: Optional[Dict[str, Any]] = None):
+      self.task_history.append({"task": task_name, "output": output})
+      

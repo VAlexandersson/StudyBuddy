@@ -3,8 +3,9 @@ from pipeline.data_models import PipelineContext
 from models.cross_encoder import ReRankerModel
 
 from pipeline.tasks import Task
+from logging import Logger
 
-def rerank_documents(context: PipelineContext) -> PipelineContext:
+def rerank_documents(context: PipelineContext, logger: Logger) -> PipelineContext:
   cross_encoder = ReRankerModel()  
   query = context.query.text
   documents = context.retrieved_documents.documents
@@ -19,6 +20,8 @@ def rerank_documents(context: PipelineContext) -> PipelineContext:
   
   documents = [item[1] for item in combined]
   context.retrieved_documents.documents = documents
+
+  logger.debug(f"ReRanked Documents: {documents}")
   
   return context
 

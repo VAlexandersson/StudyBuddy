@@ -1,23 +1,30 @@
 # pipeline/tasks/generate_response.py
-from config.prompt_library import STANDARD_PROMPT
+from configs.prompt_library import STANDARD_PROMPT
 from pipeline.data_models import PipelineContext, Response
 from models.text_generation import LLM
-from utils.concat_documents import concat_documents
 from utils.format_prompt import format_prompt
 
 from pipeline.tasks import Task
+from logging import Logger
 
 
-def generate_response(context: PipelineContext) -> PipelineContext:
-  print("Generating response...")
+def generate_response(context: PipelineContext, logger: Logger) -> PipelineContext:
   llm = LLM() 
-
-  if context.query.classification == "general_query":
+  print("\n")
+  logger.debug(f"\n\tQuery:\n{context.query.text}\n\tLabel:\n{context.query.label}")
+  
+  if context.query.label != "question":
     context.response = Response(text=llm.inference(format_prompt(context.query.text, "Be nice.")))
   else:
-    user_prompt, system_prompt = STANDARD_PROMPT
-    context_document_text = concat_documents(context.retrieved_documents.documents)
-    user_prompt.format(context.query.text, context_document_text)
+    logger.info(f"\n\tRetrieved Documents:\n {context.retrieved_documents.get_text()}\n")
+    system_prompt = STANDARD_PROMPT["system"]
+    user_prompt = STANDARD_PROMPT["user"]
+    
+    user_prompt = user_prompt.format(
+      query=context.query.text, 
+      retrieved_context=context.retrieved_documents.get_text()
+    )
+    
     context.response = Response(text=llm.inference(format_prompt(user=user_prompt, system=system_prompt)))
   return context
 
