@@ -22,6 +22,3 @@ class EmbeddingModel:
       convert_to_tensor=convert_to_tensor, 
       show_progress_bar=show_progress_bar
     )
-
-    
-

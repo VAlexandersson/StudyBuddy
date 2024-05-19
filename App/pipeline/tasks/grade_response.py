@@ -7,7 +7,6 @@ from utils.format_prompt import format_prompt
 from pipeline.tasks import Task
 from logging import Logger
 
-
 def grade_response(context: PipelineContext, logger: Logger) -> PipelineContext:
   system_prompt, user_prompt = HALLUCINATION_PROMPT
   user_prompt.format(documents=context.retrieved_documents.get_text(), response=context.response.text)

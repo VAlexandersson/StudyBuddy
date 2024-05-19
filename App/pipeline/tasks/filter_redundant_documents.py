@@ -2,10 +2,8 @@ from configs.prompt_library import RELEVANCE_PROMPT
 from pipeline.data_models import PipelineContext 
 from utils.binary_grade import binary_grade
 from utils.format_prompt import format_prompt
-
 from pipeline.tasks import Task
 from logging import Logger
-
 
 def filter_redundant_documents(context: PipelineContext, logger: Logger) -> PipelineContext:
   user_prompt, system_prompt = RELEVANCE_PROMPT

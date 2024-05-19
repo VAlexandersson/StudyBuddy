@@ -1,4 +1,3 @@
-
 from pipeline.data_models import PipelineContext
 from models.zero_shot_classifier import ZeroShotClassifier
 from pipeline.tasks import Task

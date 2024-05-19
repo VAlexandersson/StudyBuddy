@@ -6,39 +6,8 @@ import torch
 
 @Singleton
 class LLM:
-  """
-  (singleton) Language Learning Model (LLM) class for generating responses based on a given query and context.
-
-  Args:
-    model_id (str): The identifier of the pre-trained language model to be used.
-    device (str): The device to run the model on (e.g., "cuda" for GPU or "cpu" for CPU).
-    attn_implementation (str): The attention implementation to be used by the model.
-
-  Attributes:
-    device (str): The device to run the model on.
-    tokenizer (AutoTokenizer): The tokenizer for the language model.
-    model (AutoModelForCausalLM): The pre-trained language model.
-    terminators (list): List of token IDs representing sentence terminators.
-
-  Methods:
-    generate_response(query, documents=None, temperature=0.7):
-      Generates a response based on the given query and optional context documents.
-
-    format_prompt(user, system):
-      Formats the user and system prompts into a message.
-
-  """
 
   def __init__(self, model_id: str = "meta-llama/Meta-Llama-3-8B-Instruct", device: str = "cuda", attn_implementation: str = "sdpa"):
-    """
-    Initializes the LLM object.
-
-    Args:
-      model_id (str): The identifier of the pre-trained language model to be used.
-      device (str): The device to run the model on (e.g., "cuda" for GPU or "cpu" for CPU).
-      attn_implementation (str): The attention implementation to be used by the model.
-    """
-
     self.device = device
     self.tokenizer = AutoTokenizer.from_pretrained(model_id)
     self.model = AutoModelForCausalLM.from_pretrained(
@@ -62,18 +31,6 @@ class LLM:
     return response
 
   def inference(self, input_text, temperature: float = 0.7):
-    """
-    Generates a response based on the given query and optional context documents.
-
-    Args:
-      query (str): The query for which a response is to be generated.
-      documents (list): Optional list of context documents.
-      temperature (float): The temperature value for controlling the randomness of the generated text.
-
-    Returns:
-      str: The generated response.
-
-    """
 
     # Tokenize the input
     input_ids = self.tokenizer.apply_chat_template(
@@ -82,6 +39,7 @@ class LLM:
       return_tensors='pt'
     )
 
+    # Type checking
     if not isinstance(input_ids, torch.Tensor):
       input_ids = torch.tensor(input_ids)
     input_ids = input_ids.to(self.device)
