@@ -48,7 +48,6 @@ class StudyBuddy:
         logger.info(f"Next Task: {next_task_name}")
 
         current_task = self.tasks.get(next_task_name)
-        logger.info(f"Current Task: {current_task}")
 
         context.routing_key = "default"
         
