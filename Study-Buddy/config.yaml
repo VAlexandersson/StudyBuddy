@@ -1,0 +1,47 @@
+MODEL_IDS:
+  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"
+  embedding_model: "sentence-transformers/all-mpnet-base-v2"
+  llm: "meta-llama/Meta-Llama-3-8B-Instruct"
+  zero_shot_classifier: "MoritzLaurer/deberta-v3-large-zeroshot-v2.0"
+API_KEYS:
+  # to be implemented 
+TASKS:
+  - name: "PreprocessQueryTask"
+    class: logic.tasks.query_processing.preprocess_query.PreprocessQueryTask
+  - name: "DecomposeQueryTask"
+    class: logic.tasks.query_processing.decompose_query.DecomposeQueryTask
+  - name: "ClassifyQueryTask"
+    class: logic.tasks.classification.classify_query.ClassifyQueryTask
+  - name: "EmbedQueryTask"
+    class: logic.tasks.retrieval.embed_query.EmbedQueryTask
+  - name: "RetrieveDocumentsTask"
+    class: logic.tasks.retrieval.retrieve_documents.RetrieveDocumentsTask
+  - name: "FilterDocumentsTask"
+    class: logic.tasks.retrieval.filter_documents.FilterDocumentsTask
+  - name: "ReRankingTask"
+    class: logic.tasks.retrieval.rerank_documents.ReRankingTask
+  - name: "GenerateResponseTask"
+    class: logic.tasks.response.generate_response.GenerateResponseTask
+  - name: "GradeResponseTask"
+    class: logic.tasks.response.grade_response.GradeResponseTask
+ROUTING:
+  ClassifyQueryTask: 
+    rag: "EmbedQueryTask"
+    response: "GenerateResponseTask"
+  EmbedQueryTask:
+    default: "RetrieveDocumentsTask"
+  RetrieveDocumentsTask:
+    default: "FilterDocumentsTask"
+  FilterDocumentsTask: 
+    default: "ReRankingTask"
+  ReRankingTask:
+    default: "GenerateResponseTask"
+  GenerateResponseTask: 
+    grade: "GradeResponseTask"
+    end: "EndTask"
+  GradeResponseTask:
+    end: "EndTask"
+  PreprocessQueryTask:
+    default: "ClassifyQueryTask"
+DATABASE: 
+  # add when we got persistent data.
