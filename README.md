@@ -2,7 +2,7 @@
 
 ### Introduction
 
-Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses RAG-module to deliver factoid and relative information. The RAG-module is designed with a pipeline architecture in mind with some routing. It has also been desinged with flexability in mind. 
+Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses RAG-module to deliver factoid and relative information. The RAG-module is designed with a with some routing to make it adaptable and easily extendable. It has also been desinged with flexability in mind for continuel development.
 
 INSERT A DIAGRAM HERE <.<
 
