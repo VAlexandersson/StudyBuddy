@@ -1,16 +1,12 @@
 # App/pipeline/tasks/embed_query.py
 from models.data_models import PipelineContext
 from language_models.sentence_transformer import EmbeddingModel
-from logic.tasks import Task
 from logging import Logger
+from logic.tasks.base_task import BaseTask
 
-def embed_query(context: PipelineContext, logger: Logger) -> PipelineContext:
-  embedding_model = EmbeddingModel()
-  context.query.embeddings = embedding_model.encode(context.query.text)
-  logger.debug(f"Query Embeddings: {context.query.embeddings}")
-  return context
-
-EmbedQueryTask = Task(
-  name="EmbedQueryTask",
-  function=embed_query,
-)
+class EmbedQueryTask(BaseTask):
+  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+    embedding_model = EmbeddingModel()
+    context.query.embeddings = embedding_model.encode(context.query.text)
+    logger.debug(f"Query Embeddings: {context.query.embeddings}")
+    return context
