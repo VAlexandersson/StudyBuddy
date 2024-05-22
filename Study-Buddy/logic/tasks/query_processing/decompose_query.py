@@ -8,7 +8,8 @@ class DecomposeQueryTask(BaseTask):
     llm = LLM()
     decomposed_query = llm.generate_response(
         user=context.query.text,
-        system="You are a query demcomposer. Your goal is to take a query and decompose it into on to many parts depending on how complicated the query is. Your response should only concist of the decomposed parts as a list in json format."
+        system="You are a query demcomposer. Your goal is to take a query and decompose it into one to many parts depending on how complicated the query is. Your response should only concist of the decomposed parts as a list in json format.",
+        temperature=0.3,
     )
     context.query.decomposed_parts = decomposed_query.split('\n')
 

@@ -1,4 +1,3 @@
-# App/pipeline/tasks/embed_query.py
 from models.data_models import PipelineContext
 from language_models.sentence_transformer import EmbeddingModel
 from logging import Logger

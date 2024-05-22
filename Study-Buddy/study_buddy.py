@@ -34,7 +34,7 @@ class StudyBuddy:
         self.ui.display_response(Response(text="Goodbye!"))
         break
 
-      context = PipelineContext(query=query, routing_key="default")
+      context = PipelineContext(query=query)
       current_task = self.tasks["PreprocessQueryTask"]
 
       while current_task:

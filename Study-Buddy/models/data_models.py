@@ -1,4 +1,3 @@
-# App/pipeline/data_models.py
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
 
@@ -7,12 +6,26 @@ class DocumentObject(BaseModel):
   document: str
   embeddings: List = None
   metadatas: Dict
-    
+
 class Query(BaseModel):
   text: str = ""
-  label: Optional[str] = None 
+  reformulated_query: Optional[str] = ""
+  query_history: Optional[List[str]] = []
   decomposed_parts: Optional[List[str]] = []
+
+  label: Optional[str] = "" 
+  is_multistep: Optional[bool] = False
+  
   embeddings: List = []
+  @property
+  def text(self):
+    return self.text
+  
+  @text.setter
+  def text(self, value):
+    if self._text:
+      self.query_history.append(self._text)
+    self._text = value
 
 class RetrievedDocuments(BaseModel):
   documents: List[DocumentObject] = []
@@ -38,7 +51,7 @@ class PipelineContext(BaseModel):
   retrieved_documents: Optional[RetrievedDocuments] = RetrievedDocuments()
   response: Optional[Response] = Response()
   last_task: Optional[str] = "PreprocessQueryTask"
-  routing_key: Optional[str] = None
+  routing_key: Optional[str] = "default"
   response_type: Optional[str] = None
 
   task_history: List[Dict[str, Any]] = []
