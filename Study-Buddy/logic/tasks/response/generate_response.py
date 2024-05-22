@@ -1,4 +1,3 @@
-# pipeline/tasks/generate_response.py
 from logic.prompt_library import STANDARD_PROMPT
 from models.data_models import PipelineContext, Response
 from language_models.text_generation import LLM

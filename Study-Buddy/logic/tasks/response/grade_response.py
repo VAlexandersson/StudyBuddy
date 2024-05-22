@@ -1,4 +1,3 @@
-# pipeline/tasks/grade_response.py
 from logic.prompt_library import HALLUCINATION_PROMPT
 from models.data_models import PipelineContext
 from utils.binary_grade import binary_grade

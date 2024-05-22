@@ -1,4 +1,3 @@
-# pipeline/tasks/rerank_documents.py
 from models.data_models import PipelineContext
 from language_models.cross_encoder import ReRankerModel
 from logging import Logger

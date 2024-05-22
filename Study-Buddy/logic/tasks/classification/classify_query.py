@@ -12,7 +12,7 @@ class ClassifyQueryTask(BaseTask):
     logger.debug(f"Label scores: {output}")
     labels_scores = zip(output["labels"], output["scores"])
     label, score = max(labels_scores, key=lambda pair: pair[1])
-    route = "rag" if label == "question" else "response"
+    route = label if label == "question" else "default"
 
     context.routing_key = route
     context.query.label = label
