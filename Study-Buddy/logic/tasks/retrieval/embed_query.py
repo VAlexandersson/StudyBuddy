@@ -7,5 +7,5 @@ class EmbedQueryTask(BaseTask):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     embedding_model = EmbeddingModel()
     context.query.embeddings = embedding_model.encode(context.query.text)
-    logger.debug(f"Query Embeddings: {context.query.embeddings}")
+    logger.debug(f"Query Embeddings:\n{context.query.embeddings}")
     return context

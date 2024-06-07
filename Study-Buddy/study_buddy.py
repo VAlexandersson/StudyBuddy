@@ -39,7 +39,7 @@ class StudyBuddy:
 
       while current_task:
         logger.info(f"Current Task: {current_task}")
-        logger.info(f"Context: {context}")
+        # logger.info(f"Context: {context}")
         
         context = current_task.run(context, logger)
         logger.info(f"Routing Key: {context.routing_key}")

@@ -13,5 +13,7 @@ class GradeResponseTask(BaseTask):
     prompt = format_prompt(user=user_prompt, system=system_prompt)
     context.response.grade = binary_grade(prompt).score
     logger.debug(f"Response Grade: {context.response.grade}")
+    
     #TODO: FALLBACK ROUTE, If the response is graded as 'no', we will try again to provide a better response
+
     return context

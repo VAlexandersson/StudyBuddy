@@ -1,7 +1,7 @@
 import yaml
 
 class ConfigManager:
-  def __init__(self, config_path: str = "Study-Buddy/config.yaml" ):
+  def __init__(self, config_path: str = "/home/buddy/Study-Buddy/Study-Buddy/config.yaml"):# "./Study-Buddy/config.yaml" ):
     print(f"GLOBAL ConfigManager init...\n. . . Loading config from {config_path}\n")
     self.config_path = config_path
     self._config = self.load_config()

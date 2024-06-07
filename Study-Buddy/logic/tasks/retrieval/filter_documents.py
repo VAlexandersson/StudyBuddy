@@ -14,7 +14,9 @@ class FilterDocumentsTask(BaseTask):
         user = user_prompt.format(doc, context.query.text), 
         system=system_prompt
       )
-      context.retrieved_documents.ignore.append(binary_grade(prompt).score)
+      grade = binary_grade(prompt).score
+      context.retrieved_documents.ignore.append(grade)
+      print(f"Grade: {grade} - Doc ID: {doc.id} Text:\n{doc.document}")
     
     no_indices = [i for i, x in enumerate(context.retrieved_documents.ignore) if x == 'no']
     context.retrieved_documents.filtered_documents = [context.retrieved_documents.documents[i] for i in no_indices]

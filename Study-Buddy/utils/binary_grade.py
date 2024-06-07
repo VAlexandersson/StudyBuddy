@@ -6,7 +6,6 @@ class BinaryGrade(BaseModel):
   score: str
 
 def binary_grade(prompt, type: str = None, max_retries: int = 5):
-  print("GRADE")
   retries = 0
   llm = LLM()
   while retries < max_retries:

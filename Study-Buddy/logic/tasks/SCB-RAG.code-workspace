@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../SCB-RAG"
+		},
+		{
+			"path": "../../../../doc_to_embeddings"
+		},
+		{
+			"path": "../../.."
+		}
+	],
+  "settings": {}
+}
