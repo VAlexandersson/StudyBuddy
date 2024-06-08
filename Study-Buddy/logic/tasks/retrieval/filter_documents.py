@@ -1,21 +1,25 @@
+from logic.tasks.utils.binary_grade import binary_grade
 from logic.prompt_library import RELEVANCE_PROMPT
 from models.data_models import PipelineContext 
-from utils.binary_grade import binary_grade
-from utils.format_prompt import format_prompt
-from logging import Logger
 from logic.tasks.base_task import BaseTask
+from logging import Logger
 
 class FilterDocumentsTask(BaseTask):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     user_prompt, system_prompt = RELEVANCE_PROMPT
 
     for doc in context.retrieved_documents.documents:
-      prompt = format_prompt(
-        user = user_prompt.format(doc, context.query.text), 
-        system=system_prompt
+      #prompt = format_prompt(user = user_prompt.format(doc, context.query.text), system=system_prompt)
+      
+      message = self.inference_mediator.generate_response(
+        user_prompt=user_prompt.format(doc, context.query.text), 
+        system_prompt=system_prompt,
+        temperature=0.1
       )
-      grade = binary_grade(prompt).score
+        
+      grade = binary_grade(message)
       context.retrieved_documents.ignore.append(grade)
+      
       print(f"Grade: {grade} - Doc ID: {doc.id} Text:\n{doc.document}")
     
     no_indices = [i for i, x in enumerate(context.retrieved_documents.ignore) if x == 'no']

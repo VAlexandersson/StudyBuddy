@@ -1,5 +1,5 @@
 from models.data_models import PipelineContext
-from language_models.text_generation import LLM
+#from language_models.text_generation import LLM
 from logging import Logger
 from logic.tasks.base_task import BaseTask
 
@@ -17,11 +17,11 @@ class ReformulateQueryTask(BaseTask):
     system_prompt, user_prompt = REFORMULATE_QUERY_PROMPT
     user_prompt = user_prompt.format(query=context.query.text)
 
-    llm = LLM()
-    reformulated_query = llm.generate_response(
-      user=user_prompt,
-      system=system_prompt,
-      temperature=0.3,
+ #   llm = LLM()
+    reformulated_query = self.inference_mediator.generate_response( #llm.generate_response(
+      user_prompt=user_prompt,
+      system_prompt=system_prompt,
+      temperature=0.1,
     )
 
     context.query.text = reformulated_query

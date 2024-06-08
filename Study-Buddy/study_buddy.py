@@ -3,14 +3,17 @@ from logging import Logger
 from config_manager import config_manager
 from view.study_buddy_ui import StudyBuddyUI
 from models.data_models import PipelineContext, Response
+from language_models.transformers.inference_mediator import InferenceMediator
 
 class StudyBuddy:
   def __init__(self, ui: StudyBuddyUI):
-    self.tasks = self._initialize_tasks()
     self.ui = ui
-    print(self.tasks["PreprocessQueryTask"].routing_config)
     
-  def _initialize_tasks(Self):
+    self.inference_mediator = InferenceMediator()
+    
+    self.tasks = self._initialize_tasks()
+    
+  def _initialize_tasks(self):
     task_config = config_manager.get("TASKS", [])
     routing_config = config_manager.get("ROUTING", {})
     task_instances = {}
@@ -20,7 +23,7 @@ class StudyBuddy:
       module_path, class_name = task_class_path.rsplit(".", 1)
       module = importlib.import_module(module_path)
       task_class = getattr(module, class_name)
-      task_instance = task_class(name=task_name)
+      task_instance = task_class(name=task_name, inference_mediator=self.inference_mediator)
       task_instance.routing_config = routing_config.get(task_name, {})
       task_instances[task_name] = task_instance
     return task_instances
