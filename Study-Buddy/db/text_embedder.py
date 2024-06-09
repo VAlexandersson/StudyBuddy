@@ -1,16 +1,11 @@
-from utils.singleton import Singleton
-from config_manager import config_manager
 from sentence_transformers import SentenceTransformer
+from language_models.base_models import EmbeddingModelInterface
 
-@Singleton
-class EmbeddingModel:
-  def __init__(self):
-    self.model_id = config_manager.get("MODEL_IDS", {}).get("embedding_model")
-    if not self.model_id:
-      raise ValueError("Embedding model not found in config file")
+class TextEmbedder(EmbeddingModelInterface):
+  def __init__(self, model_id: str = "sentence-transformers/all-mpnet-base-v2"):
     
-    self.embedding_model = SentenceTransformer(self.model_id)
-    print(f"Loaded Sentence Transformer model: {self.model_id}")
+    self.embedding_model = SentenceTransformer(model_id)
+    print(f"Loaded Sentence Transformer model: {model_id}")
     
   def encode(self, query):
     query_embeddings = self.embedding_model.encode(

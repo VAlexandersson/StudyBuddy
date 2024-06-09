@@ -9,7 +9,6 @@ class FilterDocumentsTask(BaseTask):
     user_prompt, system_prompt = RELEVANCE_PROMPT
 
     for doc in context.retrieved_documents.documents:
-      #prompt = format_prompt(user = user_prompt.format(doc, context.query.text), system=system_prompt)
       
       message = self.inference_mediator.generate_response(
         user_prompt=user_prompt.format(doc, context.query.text), 
