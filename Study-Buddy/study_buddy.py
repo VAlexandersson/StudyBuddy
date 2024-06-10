@@ -1,16 +1,23 @@
 import importlib
 from logging import Logger
-from config_manager import config_manager
+from config.config_manager import config_manager
 from view.base_ui import BaseUI
 from models.data_models import PipelineContext, Response
-from language_models.transformers.inference_mediator import InferenceMediator
+from language_models.inference_mediator_interface import InferenceMediatorInterface
 from db.retrieval_interface import RetrieveDocumentsInterface
 
 class StudyBuddy:
-  def __init__(self, ui: BaseUI, document_retriever: RetrieveDocumentsInterface, logger: Logger):
+  def __init__(
+      self, 
+      ui: BaseUI, 
+      document_retriever: RetrieveDocumentsInterface, 
+      inference_mediator: InferenceMediatorInterface, 
+      logger: Logger
+    ):
+       
     self.ui = ui
-    self.inference_mediator = InferenceMediator()
     self.logger = logger
+    self.inference_mediator = inference_mediator
     self.document_retriever = document_retriever
     
     self.tasks = self._initialize_tasks()

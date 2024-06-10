@@ -1,7 +1,5 @@
-from utils.singleton import Singleton
 from sentence_transformers import CrossEncoder
 
-@Singleton
 class DocReRanker:
   def __init__(self, model_id: str) -> None:
     self.cross_encoder = CrossEncoder(model_id)

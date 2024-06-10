@@ -1,7 +1,7 @@
 from models.data_models import PipelineContext
 #from language_models.zero_shot_classifier import ZeroShotClassifier
 from logging import Logger
-from configs.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
+from config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
 from logic.tasks.base_task import BaseTask
 
 class ClassifyQueryTask(BaseTask):

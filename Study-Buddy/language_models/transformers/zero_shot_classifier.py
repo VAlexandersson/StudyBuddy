@@ -1,8 +1,6 @@
 from transformers import pipeline
 from typing import Dict, Any, cast
-from utils.singleton import Singleton
 
-@Singleton
 class ZeroShotClassifier:
   def __init__(self, model_id: str) -> None:
     # https://arxiv.org/abs/1907.12461

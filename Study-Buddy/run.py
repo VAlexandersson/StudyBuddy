@@ -14,7 +14,12 @@ def main():
   language_model_mediator = InferenceMediator()
   knowledge_base = ChromaDB()
   ui = CommandLineUI()
-  study_buddy = StudyBuddy(ui, language_model_mediator, knowledge_base, logger)
+  study_buddy = StudyBuddy(
+    ui=ui, 
+    document_retriever=knowledge_base, 
+    inference_mediator=language_model_mediator, 
+    logger=logger
+  )
   study_buddy.run()
 
 if __name__ == "__main__":
