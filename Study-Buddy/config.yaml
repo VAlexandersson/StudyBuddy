@@ -53,17 +53,17 @@ ROUTING:
     default: "DecomposeQueryTask"
 
   DecomposeQueryTask:
-    default: "EmbedQueryTask"
+    default: "RetrieveDocumentsTask"
 
   # Classifying 
   ClassifyQueryTask:
-    question: "EmbedQueryTask" # "ClassifyMultistepQueryTask"
-    command: "EmbedQueryTask" #"ClassifyMultistepQueryTask"
+    question: "RetrieveDocumentsTask"  # "ClassifyMultistepQueryTask"
+    command: "RetrieveDocumentsTask"  #"ClassifyMultistepQueryTask"
     default: "GenerateResponseTask"
   
   ClassifyMultistepQueryTask:
     multistep: "ReformulateQueryTask"
-    not_multistep: "EmbedQueryTask"
+    not_multistep: "RetrieveDocumentsTask" 
 
 
 

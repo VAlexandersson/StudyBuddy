@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from models.data_models import Query, Response
 
-class StudyBuddyUI(ABC):
+class BaseUI(ABC):
   @abstractmethod
-  def get_user_query(self) -> Query:
+  def get_query(self) -> Query:
       pass
 
   @abstractmethod
-  def display_response(self, response: Response):
+  def post_response(self, response: Response):
       pass

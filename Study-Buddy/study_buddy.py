@@ -1,15 +1,17 @@
 import importlib
 from logging import Logger
 from config_manager import config_manager
-from view.study_buddy_ui import StudyBuddyUI
+from view.base_ui import BaseUI
 from models.data_models import PipelineContext, Response
 from language_models.transformers.inference_mediator import InferenceMediator
+from db.retrieval_interface import RetrieveDocumentsInterface
 
 class StudyBuddy:
-  def __init__(self, ui: StudyBuddyUI):
+  def __init__(self, ui: BaseUI, document_retriever: RetrieveDocumentsInterface, logger: Logger):
     self.ui = ui
-    
     self.inference_mediator = InferenceMediator()
+    self.logger = logger
+    self.document_retriever = document_retriever
     
     self.tasks = self._initialize_tasks()
     
@@ -23,35 +25,40 @@ class StudyBuddy:
       module_path, class_name = task_class_path.rsplit(".", 1)
       module = importlib.import_module(module_path)
       task_class = getattr(module, class_name)
-      task_instance = task_class(name=task_name, inference_mediator=self.inference_mediator)
+      
+      task_instance = task_class(
+        name=task_name, 
+        inference_mediator=self.inference_mediator,
+        retrieve_documents=self.document_retriever
+      )
+      
       task_instance.routing_config = routing_config.get(task_name, {})
       task_instances[task_name] = task_instance
     return task_instances
 
-  def run(self, logger: Logger) -> PipelineContext:
+  def run(self) -> PipelineContext:
     while True:
-      query = self.ui.get_user_query()
+      query = self.ui.get_query()
       if not query.text.strip():
         continue
-      if query.text.lower() == "exit" or query.text.lower() == "bye":
-        self.ui.display_response(Response(text="Goodbye!"))
+      if query.text.lower() in ["exit", "bye", "quit", "adios"]:
+        self.ui.post_response(Response(text="Goodbye!"))
         break
 
       context = PipelineContext(query=query)
       current_task = self.tasks["PreprocessQueryTask"]
 
       while current_task:
-        logger.info(f"Current Task: {current_task}")
-        # logger.info(f"Context: {context}")
+        self.logger.info(f"Current Task: {current_task}")
         
-        context = current_task.run(context, logger)
-        logger.info(f"Routing Key: {context.routing_key}")
+        context = current_task.run(context, self.logger)
+        self.logger.info(f"Routing Key: {context.routing_key}")
 
         next_task_name = current_task.get_next_task(context.routing_key)
-        logger.info(f"Next Task: {next_task_name}")
+        self.logger.info(f"Next Task: {next_task_name}")
 
         current_task = self.tasks.get(next_task_name)
 
         context.routing_key = "default"
         
-      self.ui.display_response(context.response)
+      self.ui.post_response(context.response)

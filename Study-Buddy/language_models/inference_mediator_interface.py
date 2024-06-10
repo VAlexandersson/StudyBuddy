@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
 class InferenceMediatorInterface(ABC):
+  
+    """     
     @abstractmethod
     def encode_query(self, query: str) -> List:
         pass
@@ -9,7 +11,7 @@ class InferenceMediatorInterface(ABC):
     @abstractmethod
     def encode_documents(self, documents: List[str], batch_size: int, convert_to_tensor: bool, show_progress_bar: bool) -> List:
         pass
-
+    """
     @abstractmethod
     def generate_response(self, user_prompt: str, system_prompt: str, temperature: float) -> str:
         pass
