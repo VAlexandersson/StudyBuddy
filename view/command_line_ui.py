@@ -1,7 +1,7 @@
 from models.data_models import Query, Response
-from view.base_ui import BaseUI
+from view.user_interface import UserInterface
 
-class CommandLineUI(BaseUI):
+class CommandLineUI(UserInterface):
     def get_query(self) -> Query:
         """Gets the user's query from the command line."""
         text = input("> ")

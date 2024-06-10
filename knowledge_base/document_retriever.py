@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from models.data_models import DocumentObject
 
-class RetrieveDocumentsInterface(ABC):
+class DocumentRetriever(ABC):
   @abstractmethod
   def get_relevant_documents(self, query: str, top_k: int = 10) -> List[DocumentObject]:
     """Retrieves relevant documents based on the query text.

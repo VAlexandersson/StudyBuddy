@@ -16,7 +16,7 @@ def main():
   ui = CommandLineUI()
   study_buddy = StudyBuddy(
     ui=ui, 
-    document_retriever=knowledge_base, 
+    knowledge_base_manager=knowledge_base, 
     inference_mediator=language_model_mediator, 
     logger=logger
   )

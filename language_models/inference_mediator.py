@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Dict, Any
 
-class InferenceMediatorInterface(ABC):
+class InferenceMediator(ABC):
   
     """     
     @abstractmethod

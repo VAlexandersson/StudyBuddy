@@ -1,6 +1,6 @@
 import chromadb
 from typing import List
-from knowledge_base.knowledge_base_interface import KnowledgeBaseInterface 
+from knowledge_base.knowledge_base_manager import KnowledgeBaseManager
 from knowledge_base.text_embedder import TextEmbedder
 from knowledge_base.chroma.data_loaders.json_loader import JSONDataLoader
 from models.data_models import DocumentObject
@@ -16,7 +16,7 @@ PRECHUNKED_DATA = [
     },
 ]
 
-class ChromaDB(KnowledgeBaseInterface):
+class ChromaDB(KnowledgeBaseManager):
   def __init__(self):
     self.client = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # Initialize Chroma Client
     self.collection = self.client.create_collection(name="course_documents")

@@ -1,24 +1,24 @@
 import importlib
 from logging import Logger
 from config.config_manager import config_manager
-from view.base_ui import BaseUI
+from view.user_interface import UserInterface
 from models.data_models import PipelineContext, Response
-from language_models.inference_mediator_interface import InferenceMediatorInterface
-from knowledge_base.knowledge_base_interface import KnowledgeBaseInterface
+from language_models.inference_mediator import InferenceMediator
+from knowledge_base.knowledge_base_manager import KnowledgeBaseManager
 
 class StudyBuddy:
   def __init__(
       self, 
-      ui: BaseUI, 
-      document_retriever: KnowledgeBaseInterface, 
-      inference_mediator: InferenceMediatorInterface, 
+      ui: UserInterface, 
+      knowledge_base_manager: KnowledgeBaseManager, 
+      inference_mediator: InferenceMediator, 
       logger: Logger
     ):
        
     self.ui = ui
     self.logger = logger
     self.inference_mediator = inference_mediator
-    self.document_retriever = document_retriever
+    self.knowledge_base_manager = knowledge_base_manager
     
     self.tasks = self._initialize_tasks()
     
@@ -36,7 +36,7 @@ class StudyBuddy:
       task_instance = task_class(
         name=task_name, 
         inference_mediator=self.inference_mediator,
-        retrieve_documents=self.document_retriever
+        retrieve_documents=self.knowledge_base_manager
       )
       
       task_instance.routing_config = routing_config.get(task_name, {})
