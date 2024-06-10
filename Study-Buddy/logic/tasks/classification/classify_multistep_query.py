@@ -19,7 +19,6 @@ class ClassifyMultistepQueryTask(BaseTask):
       temperature=0.1,
     )
     
-    #prompt = format_prompt(user=user_prompt, system=system_prompt)
     context.query.is_multistep = binary_grade(message)#prompt)#.score
     logger.debug(f"\n\tIs Multistep Query: {context.query.is_multistep}\n")
     return context

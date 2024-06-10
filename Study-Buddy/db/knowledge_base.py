@@ -1,6 +1,6 @@
 import chromadb
 from utils.singleton import Singleton
-from language_models.sentence_transformer import EmbeddingModel
+from db.text_embedder import TextEmbedder
 from db.data_loaders.json_loader import JSONDataLoader
 
 PRECHUNKED_DATA = [
@@ -18,10 +18,10 @@ class VectorDB():
   def __init__(self):
     self.client = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # Initialize Chroma Client
     self.collection = self.client.create_collection(name="course_documents")
-    self.embedding_model = EmbeddingModel()
+    self.embedding_model = TextEmbedder()
     self.load_prechunked_data()
     print("Knowledge Base Initialized")
-
+ 
   def get_collection(self) -> chromadb.Collection:
     return self.collection
 

@@ -19,6 +19,6 @@ class InferenceMediatorInterface(ABC):
         pass
 
     @abstractmethod
-    def rerank_documents(self, query: str, documents: List[str]) -> List[float]:
+    def rerank_documents(self, query_doc_pair: List) -> List[float]:
         pass
 

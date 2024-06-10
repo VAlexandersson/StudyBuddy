@@ -27,6 +27,6 @@ class InferenceMediator(InferenceMediatorInterface):
   def classify_query(self, query: str, labels: List[str], hypothesis_template: str, multi_label: bool = True) -> Dict[str, Any]:
     return self.zero_shot_classifier.classify(query, labels, hypothesis_template, multi_label)
 
-  def rerank_documents(self, query: str, documents: List[str]) -> List[float]:
-    sentences = [(query, doc) for doc in documents]
-    return self.reranker_model.predict(sentences)
+  def rerank_documents(self, query_doc_pair: List) -> List[float]:
+    #sentences = [(query, doc) for doc in documents]
+    return self.reranker_model.predict(query_doc_pair)
