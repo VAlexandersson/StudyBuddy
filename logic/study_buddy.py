@@ -4,13 +4,13 @@ from config.config_manager import config_manager
 from view.base_ui import BaseUI
 from models.data_models import PipelineContext, Response
 from language_models.inference_mediator_interface import InferenceMediatorInterface
-from db.retrieval_interface import RetrieveDocumentsInterface
+from knowledge_base.knowledge_base_interface import KnowledgeBaseInterface
 
 class StudyBuddy:
   def __init__(
       self, 
       ui: BaseUI, 
-      document_retriever: RetrieveDocumentsInterface, 
+      document_retriever: KnowledgeBaseInterface, 
       inference_mediator: InferenceMediatorInterface, 
       logger: Logger
     ):

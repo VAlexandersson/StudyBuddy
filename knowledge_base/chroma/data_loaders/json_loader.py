@@ -1,5 +1,5 @@
 import json
-from db.data_loaders import BaseDataLoader
+from knowledge_base.chroma.data_loaders import BaseDataLoader
 
 class JSONDataLoader(BaseDataLoader):
     def load_data(self, path: str) -> dict:

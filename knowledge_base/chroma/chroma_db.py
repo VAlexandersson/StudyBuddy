@@ -1,6 +1,10 @@
 import chromadb
-from db.text_embedder import TextEmbedder
-from db.data_loaders.json_loader import JSONDataLoader
+from typing import List
+from knowledge_base.knowledge_base_interface import KnowledgeBaseInterface 
+from knowledge_base.text_embedder import TextEmbedder
+from knowledge_base.chroma.data_loaders.json_loader import JSONDataLoader
+from models.data_models import DocumentObject
+
 
 PRECHUNKED_DATA = [
     {
@@ -12,7 +16,7 @@ PRECHUNKED_DATA = [
     },
 ]
 
-class VectorDB():
+class ChromaDB(KnowledgeBaseInterface):
   def __init__(self):
     self.client = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # Initialize Chroma Client
     self.collection = self.client.create_collection(name="course_documents")
@@ -75,3 +79,20 @@ class VectorDB():
     chunks = data["chunks"]
     embeddings = self._embed_chunks(chunks)
     self._index_chunks(chunks, static_meta, embeddings)
+
+
+  def get_relevant_documents(self, query: str, top_k: int = 10) -> List[DocumentObject]:
+    # Embed the query within this method
+    query_embeddings = self.embedding_model.encode(query) 
+
+    retrieved_documents = self.collection.query(
+        query_embeddings=query_embeddings,
+        n_results=top_k
+    )
+
+
+    docs = retrieved_documents["documents"][0]
+    ids = retrieved_documents["ids"][0]
+    metadatas = retrieved_documents["metadatas"][0]
+
+    return [DocumentObject(id=id, document=doc, metadatas=metadata) for id, doc, metadata in zip(ids, docs, metadatas)]
