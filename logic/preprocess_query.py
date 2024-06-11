@@ -1,4 +1,4 @@
-from models.data_models import PipelineContext
+from models.data_models import Context
 from logging import Logger
 from logic import Task
 import string
@@ -7,7 +7,7 @@ import re
 class PreprocessQueryTask(Task):
   
   
-  def run(self, context: PipelineContext, logger: Logger):
+  def run(self, context: Context, logger: Logger):
     logger.debug(f"Raw Query: {context.query.text}")
 
     text = context.query.text.lower()

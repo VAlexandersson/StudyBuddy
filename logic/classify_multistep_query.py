@@ -1,4 +1,4 @@
-from models.data_models import PipelineContext
+from models.data_models import Context
 from logging import Logger
 from logic import Task
 from logic.utils.binary_grade import binary_grade
@@ -9,7 +9,7 @@ MULTISTEP_QUERY_PROMPT = (
 )
 
 class ClassifyMultistepQueryTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
     system_prompt, user_prompt = MULTISTEP_QUERY_PROMPT
     user_prompt = user_prompt.format(query=context.query.text)
     

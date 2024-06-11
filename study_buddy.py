@@ -2,7 +2,7 @@ import importlib
 from logging import Logger
 from config.config_manager import config_manager
 from view.user_interface import UserInterface
-from models.data_models import PipelineContext, Response
+from models.data_models import Context, Response
 from language_models.inference_mediator import InferenceMediator
 from knowledge_base.knowledge_base_manager import KnowledgeBaseManager
 
@@ -43,7 +43,7 @@ class StudyBuddy:
       task_instances[task_name] = task_instance
     return task_instances
 
-  def run(self) -> PipelineContext:
+  def run(self) -> Context:
     while True:
       query = self.ui.get_query()
       if not query.text.strip():
@@ -52,7 +52,7 @@ class StudyBuddy:
         self.ui.post_response(Response(text="Goodbye!"))
         break
 
-      context = PipelineContext(query=query)
+      context = Context(query=query)
       current_task = self.tasks["PreprocessQueryTask"]
 
       while current_task:

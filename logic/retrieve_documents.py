@@ -1,11 +1,11 @@
 #from db.knowledge_base import VectorDB
-from models.data_models import PipelineContext, RetrievedDocuments
+from models.data_models import Context, RetrievedDocuments
 
 from logging import Logger
 from logic import Task
 
 class RetrieveDocumentsTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
 
     documents = self.document_retriever.get_relevant_documents( 
       context.query.text, 

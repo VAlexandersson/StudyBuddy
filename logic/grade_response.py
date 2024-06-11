@@ -1,12 +1,12 @@
 from utils.prompt_library import HALLUCINATION_PROMPT
-from models.data_models import PipelineContext
+from models.data_models import Context
 
 from logging import Logger
 from logic import Task
 from logic.utils.binary_grade import binary_grade
 
 class GradeResponseTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
 
     system_prompt, user_prompt = HALLUCINATION_PROMPT
     user_prompt.format(documents=context.retrieved_documents.get_text(), response=context.response.text)

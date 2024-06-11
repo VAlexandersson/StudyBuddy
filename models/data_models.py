@@ -46,7 +46,7 @@ class Response(BaseModel):
   text: str = ""
   grade: Optional[str] = None
 
-class PipelineContext(BaseModel):
+class Context(BaseModel):
   query: Query = Query()
   retrieved_documents: Optional[RetrievedDocuments] = RetrievedDocuments()
   response: Optional[Response] = Response()

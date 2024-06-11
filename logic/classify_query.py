@@ -1,11 +1,11 @@
-from models.data_models import PipelineContext
+from models.data_models import Context
 #from language_models.zero_shot_classifier import ZeroShotClassifier
 from logging import Logger
 from config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
 from logic import Task
 
 class ClassifyQueryTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
     
     logger.info(f"Classifying Query: {context.query.text}")
     output = self.inference_mediator.classify_query(context.query.text, LABELS, HYPOTHESIS_TEMPLATE)

@@ -1,9 +1,9 @@
-from models.data_models import PipelineContext
+from models.data_models import Context
 from logging import Logger
 from logic import Task
 
 class ReRankingTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
     query = context.query.text
     documents = context.retrieved_documents.documents
 

@@ -1,11 +1,11 @@
 from logic.utils.binary_grade import binary_grade
 from utils.prompt_library import RELEVANCE_PROMPT
-from models.data_models import PipelineContext 
+from models.data_models import Context 
 from logic import Task
 from logging import Logger
 
 class FilterDocumentsTask(Task):
-  def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
+  def run(self, context: Context, logger: Logger) -> Context:
     user_prompt, system_prompt = RELEVANCE_PROMPT
 
     for doc in context.retrieved_documents.documents:
