@@ -1,6 +1,6 @@
 import chromadb
 from typing import List
-from knowledge_base.knowledge_base_manager import KnowledgeBaseManager
+from interfaces.knowledge_base import KnowledgeBaseManager
 from knowledge_base.text_embedder import TextEmbedder
 from knowledge_base.chroma.data_loaders.json_loader import JSONDataLoader
 from models.data_models import DocumentObject

@@ -1,10 +1,10 @@
-from language_models.inference_mediator import InferenceMediator
+from interfaces.language_models import InferenceMediator
 from language_models.transformers.zero_shot_classifier import ZeroShotClassifier
 from language_models.transformers.text_generator import TextGenerator
 from language_models.transformers.cross_encoder import DocReRanker
 from typing import List, Dict, Any
  
-class InferenceMediator(InferenceMediator):
+class TransformerInferenceMediator(InferenceMediator):
   def __init__(self):
     self.text_generator = TextGenerator(model_id = "meta-llama/Meta-Llama-3-8B-Instruct", device = "cuda", attn_implementation = "sdpa")
     self.zero_shot_classifier = ZeroShotClassifier(model_id= "MoritzLaurer/deberta-v3-large-zeroshot-v2.0")

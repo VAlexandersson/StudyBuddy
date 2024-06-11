@@ -1,5 +1,5 @@
 from models.data_models import Query, Response
-from view.user_interface import UserInterface
+from interfaces.user_interface import UserInterface
 
 class CommandLineUI(UserInterface):
     def get_query(self) -> Query:

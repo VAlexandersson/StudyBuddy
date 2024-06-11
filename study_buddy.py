@@ -1,10 +1,11 @@
 import importlib
 from logging import Logger
 from config.config_manager import config_manager
-from view.user_interface import UserInterface
 from models.data_models import Context, Response
-from language_models.inference_mediator import InferenceMediator
-from knowledge_base.knowledge_base_manager import KnowledgeBaseManager
+
+from interfaces.user_interface import UserInterface
+from interfaces.language_models import InferenceMediator
+from interfaces.knowledge_base import KnowledgeBaseManager
 
 class StudyBuddy:
   def __init__(

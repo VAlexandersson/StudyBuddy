@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from models.data_models import DocumentObject
 
+
 class DocumentRetriever(ABC):
   @abstractmethod
   def get_relevant_documents(self, query: str, top_k: int = 10) -> List[DocumentObject]:
@@ -14,4 +15,9 @@ class DocumentRetriever(ABC):
     Returns:
         A list of DocumentObject instances representing the retrieved documents.
     """
+    pass
+
+
+class KnowledgeBaseManager(DocumentRetriever):
+  def _place_holder(self):
     pass

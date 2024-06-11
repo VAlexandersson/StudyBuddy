@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from models.data_models import Context
 from logging import Logger
-from language_models.inference_mediator import InferenceMediator
-from knowledge_base.document_retriever import DocumentRetriever
+from interfaces.language_models import InferenceMediator
+from interfaces.knowledge_base import DocumentRetriever
 
 class Task(ABC):
   def __init__(self, name: str, inference_mediator: InferenceMediator, retrieve_documents: DocumentRetriever):
