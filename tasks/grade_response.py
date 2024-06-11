@@ -2,8 +2,8 @@ from utils.prompt_library import HALLUCINATION_PROMPT
 from models.data_models import Context
 
 from logging import Logger
-from logic import Task
-from logic.utils.binary_grade import binary_grade
+from tasks import Task
+from tasks.utils.binary_grade import binary_grade
 
 class GradeResponseTask(Task):
   def run(self, context: Context, logger: Logger) -> Context:

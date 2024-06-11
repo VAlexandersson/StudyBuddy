@@ -1,7 +1,7 @@
-from logic.utils.binary_grade import binary_grade
+from tasks.utils.binary_grade import binary_grade
 from utils.prompt_library import RELEVANCE_PROMPT
 from models.data_models import Context 
-from logic import Task
+from tasks import Task
 from logging import Logger
 
 class FilterDocumentsTask(Task):

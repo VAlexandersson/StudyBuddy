@@ -1,7 +1,7 @@
 from models.data_models import Context
 from logging import Logger
-from logic import Task
-from logic.utils.binary_grade import binary_grade
+from tasks import Task
+from tasks.utils.binary_grade import binary_grade
 
 MULTISTEP_QUERY_PROMPT = (
   "You are a multistep query classifier. Your goal is to determine if a given query requires multiple steps to answer or can be answered in a single step. Provide a binary 'yes' or 'no' score to indicate whether the query is a multistep query. Return the binary score as a JSON with a single key 'score' and no additional explanation.",

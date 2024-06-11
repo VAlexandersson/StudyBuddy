@@ -1,6 +1,6 @@
 from models.data_models import Context
 from logging import Logger
-from logic import Task
+from tasks import Task
 
 class DecomposeQueryTask(Task):
   def run(self, context: Context, logger: Logger):

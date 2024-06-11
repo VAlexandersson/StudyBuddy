@@ -2,7 +2,7 @@ from utils.prompt_library import STANDARD_PROMPT
 from models.data_models import Context, Response
 
 from logging import Logger
-from logic import Task
+from tasks import Task
 
 # TODO: Break out format prompt into a separate task
 class GenerateResponseTask(Task):

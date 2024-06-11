@@ -1,7 +1,7 @@
 from models.data_models import Context
 from logging import Logger
 from config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
-from logic import Task
+from tasks import Task
 
 class ClassifyQueryTask(Task):
   def run(self, context: Context, logger: Logger) -> Context:

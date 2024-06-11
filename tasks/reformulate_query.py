@@ -1,6 +1,6 @@
 from models.data_models import Context
 from logging import Logger
-from logic import Task
+from tasks import Task
 
 
 REFORMULATE_QUERY_PROMPT = (

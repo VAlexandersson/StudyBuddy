@@ -1,7 +1,7 @@
 from models.data_models import Context, RetrievedDocuments
 
 from logging import Logger
-from logic import Task
+from tasks import Task
 
 class RetrieveDocumentsTask(Task):
   def run(self, context: Context, logger: Logger) -> Context:
