@@ -1,4 +1,3 @@
-#from db.knowledge_base import VectorDB
 from models.data_models import Context, RetrievedDocuments
 
 from logging import Logger

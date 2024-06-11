@@ -1,5 +1,4 @@
 from models.data_models import Context
-#from language_models.zero_shot_classifier import ZeroShotClassifier
 from logging import Logger
 from config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
 from logic import Task

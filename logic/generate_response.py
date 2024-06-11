@@ -23,7 +23,7 @@ class GenerateResponseTask(Task):
       )
 
     context.response = Response(
-      text=self.inference_mediator.generate_response(  #llm.inference(format_prompt(
+      text=self.inference_mediator.generate_response(
         user_prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.7

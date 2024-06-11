@@ -15,9 +15,8 @@ class ReformulateQueryTask(Task):
 
     system_prompt, user_prompt = REFORMULATE_QUERY_PROMPT
     user_prompt = user_prompt.format(query=context.query.text)
-
- #   llm = LLM()
-    reformulated_query = self.inference_mediator.generate_response( #llm.generate_response(
+    
+    reformulated_query = self.inference_mediator.generate_response( 
       user_prompt=user_prompt,
       system_prompt=system_prompt,
       temperature=0.1,
