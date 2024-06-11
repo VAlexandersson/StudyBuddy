@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from interfaces.base_models import EmbeddingModelInterface
+from interfaces.language_models import EmbeddingModelInterface
 
 class TextEmbedder(EmbeddingModelInterface):
   def __init__(self):
