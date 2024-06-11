@@ -1,11 +1,11 @@
-from logic.prompt_library import STANDARD_PROMPT
+from utils.prompt_library import STANDARD_PROMPT
 from models.data_models import PipelineContext, Response
 
 from logging import Logger
-from logic.tasks.base_task import BaseTask
+from logic import Task
 
 # TODO: Break out format prompt into a separate task
-class GenerateResponseTask(BaseTask):
+class GenerateResponseTask(Task):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     print("\n")
     logger.debug(f"\n\tQuery:\n{context.query.text}\n\tLabel:\n{context.query.label}")

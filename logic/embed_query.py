@@ -1,8 +1,8 @@
 from models.data_models import PipelineContext
 from logging import Logger
-from logic.tasks.base_task import BaseTask
+from logic import Task
 
-class EmbedQueryTask(BaseTask):
+class EmbedQueryTask(Task):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     context.query.embeddings = self.inference_mediator.encode_query(context.query.text)#embedding_model.encode(context.query.text)
     logger.debug(f"Query Embeddings:\n{context.query.embeddings}")

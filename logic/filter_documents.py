@@ -1,10 +1,10 @@
-from logic.tasks.utils.binary_grade import binary_grade
-from logic.prompt_library import RELEVANCE_PROMPT
+from logic.utils.binary_grade import binary_grade
+from utils.prompt_library import RELEVANCE_PROMPT
 from models.data_models import PipelineContext 
-from logic.tasks.base_task import BaseTask
+from logic import Task
 from logging import Logger
 
-class FilterDocumentsTask(BaseTask):
+class FilterDocumentsTask(Task):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     user_prompt, system_prompt = RELEVANCE_PROMPT
 

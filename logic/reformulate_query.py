@@ -1,6 +1,6 @@
 from models.data_models import PipelineContext
 from logging import Logger
-from logic.tasks.base_task import BaseTask
+from logic import Task
 
 
 REFORMULATE_QUERY_PROMPT = (
@@ -9,7 +9,7 @@ REFORMULATE_QUERY_PROMPT = (
 )
 
 
-class ReformulateQueryTask(BaseTask):
+class ReformulateQueryTask(Task):
   def run(self, context: PipelineContext, logger: Logger):
     logger.debug(f"Raw Query: {context.query.text}")
 

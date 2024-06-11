@@ -9,40 +9,40 @@ TASKS:
 
   # Query Tasks
   - name: "PreprocessQueryTask"
-    class: logic.tasks.query_processing.preprocess_query.PreprocessQueryTask
+    class: logic.preprocess_query.PreprocessQueryTask
   
   - name: "ReformulateQueryTask"
-    class: logic.tasks.query_processing.reformulate_query.ReformulateQueryTask
+    class: logic.reformulate_query.ReformulateQueryTask
 
   - name: "DecomposeQueryTask"
-    class: logic.tasks.query_processing.decompose_query.DecomposeQueryTask
+    class: logic.decompose_query.DecomposeQueryTask
 
     # Classification Tasks
   - name: "ClassifyQueryTask"
-    class: logic.tasks.classification.classify_query.ClassifyQueryTask
+    class: logic.classify_query.ClassifyQueryTask
 
   - name: "ClassifyMultistepQueryTask"
-    class: logic.tasks.classification.classify_multistep_query.ClassifyMultistepQueryTask
+    class: logic.classify_multistep_query.ClassifyMultistepQueryTask
 
     # Retrieval Tasks
   - name: "EmbedQueryTask"
-    class: logic.tasks.retrieval.embed_query.EmbedQueryTask
+    class: logic.embed_query.EmbedQueryTask
 
   - name: "RetrieveDocumentsTask"
-    class: logic.tasks.retrieval.retrieve_documents.RetrieveDocumentsTask
+    class: logic.retrieve_documents.RetrieveDocumentsTask
 
   - name: "FilterDocumentsTask"
-    class: logic.tasks.retrieval.filter_documents.FilterDocumentsTask
+    class: logic.filter_documents.FilterDocumentsTask
 
   - name: "ReRankingTask"
-    class: logic.tasks.retrieval.rerank_documents.ReRankingTask
+    class: logic.rerank_documents.ReRankingTask
 
     # Response Tasks
   - name: "GenerateResponseTask"
-    class: logic.tasks.response.generate_response.GenerateResponseTask
+    class: logic.generate_response.GenerateResponseTask
 
   - name: "GradeResponseTask"
-    class: logic.tasks.response.grade_response.GradeResponseTask
+    class: logic.grade_response.GradeResponseTask
 
 ROUTING:
   # Query Tasks

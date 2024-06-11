@@ -1,8 +1,8 @@
 from models.data_models import PipelineContext
 from logging import Logger
-from logic.tasks.base_task import BaseTask
+from logic import Task
 
-class DecomposeQueryTask(BaseTask):
+class DecomposeQueryTask(Task):
   def run(self, context: PipelineContext, logger: Logger):
     decomposed_query = self.inference_mediator.generate_response(
         user_prompt=context.query.text,

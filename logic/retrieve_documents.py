@@ -2,9 +2,9 @@
 from models.data_models import PipelineContext, RetrievedDocuments
 
 from logging import Logger
-from logic.tasks.base_task import BaseTask
+from logic import Task
 
-class RetrieveDocumentsTask(BaseTask):
+class RetrieveDocumentsTask(Task):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
 
     documents = self.document_retriever.get_relevant_documents( 

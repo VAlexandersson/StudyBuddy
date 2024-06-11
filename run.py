@@ -1,4 +1,4 @@
-from logic.study_buddy import StudyBuddy
+from study_buddy import StudyBuddy
 from knowledge_base.chroma.chroma_db import ChromaDB
 from language_models.transformers.inference_mediator import InferenceMediator
 from view.command_line_ui import CommandLineUI

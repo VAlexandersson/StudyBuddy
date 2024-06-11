@@ -1,14 +1,14 @@
 from models.data_models import PipelineContext
 from logging import Logger
-from logic.tasks.base_task import BaseTask
-from logic.tasks.utils.binary_grade import binary_grade
+from logic import Task
+from logic.utils.binary_grade import binary_grade
 
 MULTISTEP_QUERY_PROMPT = (
   "You are a multistep query classifier. Your goal is to determine if a given query requires multiple steps to answer or can be answered in a single step. Provide a binary 'yes' or 'no' score to indicate whether the query is a multistep query. Return the binary score as a JSON with a single key 'score' and no additional explanation.",
   "Here is the query: {query}"
 )
 
-class ClassifyMultistepQueryTask(BaseTask):
+class ClassifyMultistepQueryTask(Task):
   def run(self, context: PipelineContext, logger: Logger) -> PipelineContext:
     system_prompt, user_prompt = MULTISTEP_QUERY_PROMPT
     user_prompt = user_prompt.format(query=context.query.text)
