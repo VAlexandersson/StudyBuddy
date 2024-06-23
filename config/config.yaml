@@ -9,75 +9,76 @@ TASKS:
 
   # Query Tasks
   - name: "PreprocessQueryTask"
-    class: logic.preprocess_query.PreprocessQueryTask
+    class: tasks.preprocess_query.PreprocessQueryTask
   
   - name: "ReformulateQueryTask"
-    class: logic.reformulate_query.ReformulateQueryTask
+    class: tasks.reformulate_query.ReformulateQueryTask
 
   - name: "DecomposeQueryTask"
-    class: logic.decompose_query.DecomposeQueryTask
+    class: tasks.decompose_query.DecomposeQueryTask
 
     # Classification Tasks
   - name: "ClassifyQueryTask"
-    class: logic.classify_query.ClassifyQueryTask
+    class: tasks.classify_query.ClassifyQueryTask
 
   - name: "ClassifyMultistepQueryTask"
-    class: logic.classify_multistep_query.ClassifyMultistepQueryTask
+    class: tasks.classify_multistep_query.ClassifyMultistepQueryTask
 
     # Retrieval Tasks
   - name: "EmbedQueryTask"
-    class: logic.embed_query.EmbedQueryTask
+    class: tasks.embed_query.EmbedQueryTask
 
   - name: "RetrieveDocumentsTask"
-    class: logic.retrieve_documents.RetrieveDocumentsTask
+    class: tasks.retrieve_documents.RetrieveDocumentsTask
 
   - name: "FilterDocumentsTask"
-    class: logic.filter_documents.FilterDocumentsTask
+    class: tasks.filter_documents.FilterDocumentsTask
 
   - name: "ReRankingTask"
-    class: logic.rerank_documents.ReRankingTask
+    class: tasks.rerank_documents.ReRankingTask
 
     # Response Tasks
   - name: "GenerateResponseTask"
-    class: logic.generate_response.GenerateResponseTask
+    class: tasks.generate_response.GenerateResponseTask
 
   - name: "GradeResponseTask"
-    class: logic.grade_response.GradeResponseTask
+    class: tasks.grade_response.GradeResponseTask
 
 ROUTING:
-  # Query Tasks
+
+    # Response Tasks
+  - name: "GenerateResponseTask"
+    class: tasks.generate_response.GenerateResponseTask
+
+  - name: "GradeResponseTask"
+    class: tasks.grade_response.GradeResponseTask
+
+ROUTING:
+
   PreprocessQueryTask:
     default: "ClassifyQueryTask"
-
   ReformulateQueryTask:
     default: "DecomposeQueryTask"
-
   DecomposeQueryTask:
     default: "RetrieveDocumentsTask"
 
-  # Classifying 
   ClassifyQueryTask:
-    question: "RetrieveDocumentsTask"  # "ClassifyMultistepQueryTask"
-    command: "RetrieveDocumentsTask"  #"ClassifyMultistepQueryTask"
+    question: "RetrieveDocumentsTask" 
+    command: "RetrieveDocumentsTask"  
     default: "GenerateResponseTask"
-  
   ClassifyMultistepQueryTask:
     multistep: "ReformulateQueryTask"
     not_multistep: "RetrieveDocumentsTask" 
 
-
-
-  # Default RAG
   EmbedQueryTask:
     default: "RetrieveDocumentsTask"
   RetrieveDocumentsTask:
-    default: "ReRankingTask" #FilterDocumentsTask
+    default: "ReRankingTask"
   FilterDocumentsTask:
     default: "ReRankingTask"
   ReRankingTask:
     default: "GenerateResponseTask"
 
-  # Response generation and evaluation
   GenerateResponseTask: 
     grade: "GradeResponseTask"
     end: "EndTask"

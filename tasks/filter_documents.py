@@ -1,5 +1,5 @@
 from tasks.utils.binary_grade import binary_grade
-from utils.prompt_library import RELEVANCE_PROMPT
+from tasks.utils.prompt_library import RELEVANCE_PROMPT
 from models.data_models import Context 
 from tasks import Task
 from logging import Logger

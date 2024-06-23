@@ -1,4 +1,4 @@
-from utils.prompt_library import HALLUCINATION_PROMPT
+from tasks.utils.prompt_library import HALLUCINATION_PROMPT
 from models.data_models import Context
 
 from logging import Logger

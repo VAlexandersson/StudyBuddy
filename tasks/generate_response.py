@@ -1,4 +1,4 @@
-from utils.prompt_library import STANDARD_PROMPT
+from tasks.utils.prompt_library import STANDARD_PROMPT
 from models.data_models import Context, Response
 
 from logging import Logger
