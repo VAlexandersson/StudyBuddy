@@ -1,5 +1,6 @@
 from tasks.utils.prompt_library import HALLUCINATION_PROMPT
 from models.data_models import Context
+from service.manager import ServiceManager
 
 from logging import Logger
 from tasks import Task
@@ -11,14 +12,16 @@ class GradeResponseTask(Task):
     system_prompt, user_prompt = HALLUCINATION_PROMPT
     user_prompt.format(documents=context.retrieved_documents.get_text(), response=context.response.text)
     
-    message = self.inference_mediator.generate_response(
-      user_prompt=user_prompt, 
-      system_prompt=system_prompt, 
-      temperature=0.7
+    text_gen_service = ServiceManager.get_service('text_generation')
+
+
+    message = text_gen_service.generate_text( #self.inference_mediator.generate_response(
+      user_prompt=user_prompt,
+      system_prompt=system_prompt,
+      temperature=0.1
     )
     
-    context.response.grade = binary_grade(message=message)
-    logger.debug(f"Response Grade: {context.response.grade}")
+    logger.debug(f"Response Grade: {message}")
     
     #TODO: FALLBACK ROUTE, If the response is graded as 'no', we will try again to provide a better response
 

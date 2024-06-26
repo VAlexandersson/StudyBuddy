@@ -2,12 +2,20 @@ from models.data_models import Context
 from logging import Logger
 from config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE 
 from tasks import Task
+from service.manager import ServiceManager
 
 class ClassifyQueryTask(Task):
   def run(self, context: Context, logger: Logger) -> Context:
     
     logger.info(f"Classifying Query: {context.query.text}")
-    output = self.inference_mediator.classify_query(context.query.text, LABELS, HYPOTHESIS_TEMPLATE)
+
+
+    classification_service = ServiceManager.get_service('classification')
+
+    
+    
+    output = classification_service.classify(context.query.text, LABELS, HYPOTHESIS_TEMPLATE)
+    
     logger.debug(f"Label scores: {output}")
     
     labels_scores = zip(output["labels"], output["scores"])

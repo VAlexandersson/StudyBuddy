@@ -1,6 +1,7 @@
 from models.data_models import Context
 from logging import Logger
 from tasks import Task
+from service.manager import ServiceManager
 
 class ReRankingTask(Task):
   def run(self, context: Context, logger: Logger) -> Context:
@@ -9,8 +10,9 @@ class ReRankingTask(Task):
 
     query_doc_pairs = [(query, doc.document) for doc in documents]
     
+    rerank_service = ServiceManager.get_service('reranking')
     
-    scores = self.inference_mediator.rerank_documents(query_doc_pairs) 
+    scores = rerank_service.rerank(query_doc_pairs) # self.inference_mediator.rerank_documents(query_doc_pairs) 
     context.retrieved_documents.original_order = [doc.id for doc in documents]
 
     combined = list(zip(scores, documents))

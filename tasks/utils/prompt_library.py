@@ -1,6 +1,8 @@
 RELEVANCE_PROMPT = (
-  """You are a grader assessing relevance of the context to a user question. If the context contains keywords related to the user question, grade it as relevant. It does not need to be a stringent test. The goal is to filter out erroneous retrievals. Give a binary score 'yes' or 'no' score to indicate whether the context is relevant to the question. Provide the binary score as a JSON with a single key 'score' and no premable or explaination.""", 
-  """Here is the retrieved document: \n\n {retrieved_context} \n\nHere is the user question: {query}\n"""
+  """You are a grader assessing relevance of the retrieved document to a user question. 
+If the retrieved document contains information related to answering the query, grade it as relevant. It does not need to be a stringent test. The goal is to filter out erroneous retrievals. Give a binary score 'yes' or 'no' score to indicate whether the context is relevant to the question. 
+Provide the binary score as a JSON with a single key 'score' and no premable or explaination.""", 
+  """Retrieved document: \n\n {retrieved_context} \n\nQuery: {query}\n"""
 )
 
 HALLUCINATION_PROMPT = (

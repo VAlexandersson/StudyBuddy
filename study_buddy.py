@@ -4,21 +4,22 @@ from config.config_manager import config_manager
 from models.data_models import Context, Response
 
 from interfaces.user_interface import UserInterface
-from interfaces.language_models import InferenceMediator
 from interfaces.knowledge_base import KnowledgeBaseManager
+
+from service.manager import ServiceManager
 
 class StudyBuddy:
   def __init__(
       self, 
       ui: UserInterface, 
       knowledge_base_manager: KnowledgeBaseManager, 
-      inference_mediator: InferenceMediator, 
       logger: Logger
     ):
-       
+
+    ServiceManager.get_instance()
+
     self.ui = ui
     self.logger = logger
-    self.inference_mediator = inference_mediator
     self.knowledge_base_manager = knowledge_base_manager
     
     self.tasks = self._initialize_tasks()
@@ -36,7 +37,6 @@ class StudyBuddy:
       
       task_instance = task_class(
         name=task_name, 
-        inference_mediator=self.inference_mediator,
         retrieve_documents=self.knowledge_base_manager
       )
       

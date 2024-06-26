@@ -6,9 +6,9 @@ from typing import List, Dict, Any
  
 class TransformerInferenceMediator(InferenceMediator):
   def __init__(self):
-    self.text_generator = TextGenerator(model_id = "meta-llama/Meta-Llama-3-8B-Instruct", device = "cuda", attn_implementation = "sdpa")
-    self.zero_shot_classifier = ZeroShotClassifier(model_id= "MoritzLaurer/deberta-v3-large-zeroshot-v2.0")
-    self.reranker_model = DocReRanker(model_id = 'cross-encoder/ms-marco-MiniLM-L-12-v2')
+    self.text_generator = None # TextGenerator(model_id = "meta-llama/Meta-Llama-3-8B-Instruct", device = "cuda", attn_implementation = "sdpa")
+    self.zero_shot_classifier = None # ZeroShotClassifier(model_id= "MoritzLaurer/deberta-v3-large-zeroshot-v2.0")
+    self.reranker_model = None # DocReRanker(model_id = 'cross-encoder/ms-marco-MiniLM-L-12-v2')
     
   """ 
   def encode_query(self, query: str) -> List:

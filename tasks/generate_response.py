@@ -1,6 +1,6 @@
 from tasks.utils.prompt_library import STANDARD_PROMPT
 from models.data_models import Context, Response
-
+from service.manager import ServiceManager
 from logging import Logger
 from tasks import Task
 
@@ -21,9 +21,9 @@ class GenerateResponseTask(Task):
         query=context.query.text, 
         retrieved_context=context.retrieved_documents.get_text()
       )
-
+    text_gen_service = ServiceManager.get_service('text_generation')
     context.response = Response(
-      text=self.inference_mediator.generate_response(
+      text=text_gen_service.generate_text( #self.inference_mediator.generate_response(
         user_prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.7
