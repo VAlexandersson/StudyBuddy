@@ -1,6 +1,7 @@
-from study_buddy import StudyBuddy
+from src.study_buddy import StudyBuddy
 
-from knowledge_base.chroma.chroma_db import ChromaDB
+from src.adapter.knowledge_base.chroma_db import ChromaDB
+#.knowledge_base.chroma.chroma_db import ChromaDB
 from view.command_line_ui import CommandLineUI
 import logging
 

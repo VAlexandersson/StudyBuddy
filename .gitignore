@@ -1,12 +1,13 @@
 studybuddy
 doc
 archive
-
+.vscode
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
+get_code.py
+output.md
 # C extensions
 *.so
 
