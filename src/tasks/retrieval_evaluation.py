@@ -1,9 +1,9 @@
-from logging import Logger
+from src.utils.logging_utils import logger
 from src.tasks import Task
-from src.models.data_models import Context
+from src.models.context import Context
 
 class RetrievalEvaluatorTask(Task):
-  def run(self, context: Context, logger: Logger) -> Context:
+  def run(self, context: Context) -> Context:
     system_prompt = "You are a retrieval evaluator. Assess the relevance and quality of the retrieved documents in relation to the query. Classify the retrieval as 'Correct', 'Incorrect', or 'Ambiguous'. Answer with a single word."
     user_prompt = f"Query: {context.query.text}\nRetrieved documents:\n{context.retrieved_documents.get_text()}\nClassify the retrieval quality:"
     

@@ -1,16 +1,16 @@
-from logging import Logger
+from src.utils.logging_utils import logger
 from src.tasks import Task
-from src.models.data_models import Context
+from src.models.context import Context
 from src.service.manager import ServiceManager
 
 class ReRankingTask(Task):
-  def run(self, context: Context, logger: Logger) -> Context:
+  def run(self, context: Context) -> Context:
     query = context.query.text
     documents = context.retrieved_documents.documents
 
     query_doc_pairs = [(query, doc.document) for doc in documents]
     print(f"Query Doc Pairs:\n{query_doc_pairs}")
-    rerank_service = ServiceManager.get_service('reranking')
+    rerank_service = ServiceManager.get_service('rerank')
     
     scores = rerank_service.rerank(query_doc_pairs) # self.inference_mediator.rerank_documents(query_doc_pairs) 
     context.retrieved_documents.original_order = [doc.id for doc in documents]

@@ -1,13 +1,13 @@
 import re
 import string
-from logging import Logger
-from src.models.data_models import Context
+from src.utils.logging_utils import logger
+from src.models.context import Context
 from src.tasks import Task
 
 class PreprocessQueryTask(Task):
   
   
-  def run(self, context: Context, logger: Logger):
+  def run(self, context: Context):
     logger.debug(f"Raw Query: {context.query.text}")
 
     text = context.query.text.lower()

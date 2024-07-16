@@ -1,5 +1,5 @@
-from logging import Logger
-from src.models.data_models import Context
+from src.utils.logging_utils import logger
+from src.models.context import Context
 from src.tasks import Task
 from src.tasks.utils.binary_grade import binary_grade
 from src.service.manager import ServiceManager
@@ -10,7 +10,7 @@ MULTISTEP_QUERY_PROMPT = (
 )
 
 class ClassifyMultistepQueryTask(Task):
-  def run(self, context: Context, logger: Logger) -> Context:
+  def run(self, context: Context) -> Context:
     system_prompt, user_prompt = MULTISTEP_QUERY_PROMPT
     user_prompt = user_prompt.format(query=context.query.text)
 

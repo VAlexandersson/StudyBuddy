@@ -1,12 +1,12 @@
-from logging import Logger
+from src.utils.logging_utils import logger
 from src.tasks import Task
 from src.tasks.utils.binary_grade import binary_grade
 from src.tasks.utils.prompt_library import RELEVANCE_PROMPT
-from src.models.data_models import Context 
+from src.models.context import Context 
 from src.service.manager import ServiceManager
 
 class FilterDocumentsTask(Task):
-  def run(self, context: Context, logger: Logger) -> Context:
+  def run(self, context: Context) -> Context:
     user_prompt, system_prompt = RELEVANCE_PROMPT
 
     for doc in context.retrieved_documents.documents:
@@ -17,6 +17,8 @@ class FilterDocumentsTask(Task):
         system_prompt=system_prompt,
         temperature=0.1
       )
+      grade = binary_grade(user_prompt=user_prompt.format(doc, context.query.text), 
+        system_prompt=system_prompt)
         
       grade = binary_grade(message)
       context.retrieved_documents.ignore.append(grade)

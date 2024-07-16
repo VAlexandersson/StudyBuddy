@@ -11,7 +11,7 @@ class ServiceFactory:
         return TransformerTextGenerationService()
       elif service_type == 'classification':
         return TransformerClassificationService()
-      elif service_type == 'reranking':
+      elif service_type == 'rerank':
         return TransformerRerankingService()
       else:
         raise ValueError(f"Unknown service type: {service_type}")

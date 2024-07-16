@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import List
-from src.models.data_models import DocumentObject
+from src.models.document import DocumentObject
 
 
 class DocumentRetriever(ABC):
@@ -31,6 +31,6 @@ class DocumentRetriever(ABC):
     """
     pass
 
-class KnowledgeBaseManager(DocumentRetriever):
+class KnowledgeBase(DocumentRetriever):
   def _place_holder(self):
-    pass
+    raise NotImplementedError("This method is a placeholder and not yet implemented.")

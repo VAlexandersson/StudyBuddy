@@ -1,11 +1,15 @@
-from logging import Logger
-from src.models.data_models import Context
-from src.config.classifier_config import LABELS, HYPOTHESIS_TEMPLATE, ROUTES
+from src.utils.logging_utils import logger
+from src.models.context import Context
 from src.tasks import Task
 from src.service.manager import ServiceManager
 
+HYPOTHESIS_TEMPLATE = "This prompt is a {}"
+LABELS = ["question", "statement", "command", "greeting", "goodbye"]
+ROUTES = ["question", "command"]
+
+
 class ClassifyQueryTask(Task):
-  def run(self, context: Context, logger: Logger) -> Context:
+  def run(self, context: Context) -> Context:
     
     logger.info(f"Classifying Query: {context.query.text}")
 

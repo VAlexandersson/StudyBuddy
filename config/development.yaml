@@ -25,6 +25,9 @@ TASKS:
     class: src.tasks.classify_multistep_query.ClassifyMultistepQueryTask
 
     # Retrieval Tasks
+  - name: "EmbedQueryTask"
+    class: src.tasks.embed_query.EmbedQueryTask
+
   - name: "RetrieveDocumentsTask"
     class: src.tasks.retrieve_documents.RetrieveDocumentsTask
 
@@ -67,6 +70,8 @@ ROUTING:
     multistep: "ReformulateQueryTask"
     not_multistep: "RetrieveDocumentsTask" 
 
+  EmbedQueryTask:
+    default: "RetrieveDocumentsTask"
   RetrieveDocumentsTask:
     default: "ReRankingTask"
   FilterDocumentsTask:

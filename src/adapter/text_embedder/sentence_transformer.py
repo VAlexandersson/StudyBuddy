@@ -2,7 +2,7 @@ from sentence_transformers import SentenceTransformer
 from src.interfaces.language_models import EmbeddingModelInterface
 
 class TextEmbedder(EmbeddingModelInterface):
-  def __init__(self, model_id: str = "BAAI/bge-large-zh-v1.5"): #"sentence-transformers/all-mpnet-base-v2"):
+  def __init__(self, model_id: str = "BAAI/bge-m3"): #"sentence-transformers/all-mpnet-base-v2"):
     
     self.embedding_model = SentenceTransformer(model_id)
     print(f"Loaded Sentence Transformer model: {model_id}")

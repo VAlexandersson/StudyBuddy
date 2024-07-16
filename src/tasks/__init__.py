@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 from logging import Logger
-from src.models.data_models import Context
+from src.models.context import Context
 from src.interfaces.knowledge_base import DocumentRetriever
 
 class Task(ABC):

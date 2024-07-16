@@ -26,14 +26,27 @@ class ServiceManager:
     def _get_service_types() -> List[str]:
         return [
             'text_generation',
-            'reranking',
+            'rerank',
             'classification'
             # Add any other service types here
         ]
     
     @classmethod
     def get_service(cls, service_type: str):
-        instance = cls.get_instance()
-        if service_type not in instance.services:
-            raise ValueError(f"Service {service_type} is not initialized")
-        return instance.services[service_type]
+      """
+      Retrieves the specified service from the service manager.
+      'text_generation', 'rerank', 'classification'.
+
+      Args:
+        service_type (str): The type of service to retrieve.
+
+      Returns:
+        object: The instance of the specified service.
+
+      Raises:
+        ValueError: If the specified service is not initialized.
+      """
+      instance = cls.get_instance()
+      if service_type not in instance.services:
+        raise ValueError(f"Service {service_type} is not initialized")
+      return instance.services[service_type]

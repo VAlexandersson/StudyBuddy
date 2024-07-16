@@ -1,27 +1,25 @@
-from src.study_buddy import StudyBuddy
+from src.rag_system import RAGSystem
 
 from src.adapter.knowledge_base.chroma_db import ChromaDB
-#.knowledge_base.chroma.chroma_db import ChromaDB
-from view.command_line_ui import CommandLineUI
-import logging
+from src.utils.config_manager import ConfigManager
+from src.view.command_line_ui import CommandLineUI
 
-logging.basicConfig(
-    level=logging.DEBUG, 
-    format='%(asctime)s - %(levelname)s - %(filename)s - %(lineno)d - %(message)s'
-)
+from src.utils.logging_utils import logger
+
+
 
 def main():
-  logger = logging.getLogger(__name__)
   
-
+  config = ConfigManager()
   knowledge_base = ChromaDB()
-  ui = CommandLineUI()
   
-  study_buddy = StudyBuddy(
-    ui=ui, 
-    knowledge_base_manager=knowledge_base, 
-    logger=logger
+  logger.info("Initializing RAG System")  
+  rag_system = RAGSystem(
+    knowledge_base=knowledge_base,
+    config=config,
   )
+  
+  study_buddy = CommandLineUI(rag_system)
   study_buddy.run()
 
 if __name__ == "__main__":

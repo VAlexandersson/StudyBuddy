@@ -1,6 +1,6 @@
-from logging import Logger
+from src.utils.logging_utils import logger
 from src.tasks import Task
-from src.models.data_models import Context
+from src.models.context import Context
 
 
 REFORMULATE_QUERY_PROMPT = (
@@ -10,7 +10,7 @@ REFORMULATE_QUERY_PROMPT = (
 
 
 class ReformulateQueryTask(Task):
-  def run(self, context: Context, logger: Logger):
+  def run(self, context: Context):
     logger.debug(f"Raw Query: {context.query.text}")
 
     system_prompt, user_prompt = REFORMULATE_QUERY_PROMPT

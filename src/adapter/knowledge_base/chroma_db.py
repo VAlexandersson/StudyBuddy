@@ -1,11 +1,10 @@
 import chromadb
 import json
 from typing import List
-from src.models.data_models import DocumentObject
-from src.interfaces.knowledge_base import KnowledgeBaseManager
+from src.models.document import DocumentObject
+from src.interfaces.knowledge_base import KnowledgeBase
 from src.adapter.text_embedder.sentence_transformer import TextEmbedder
 
-#from knowledge_base.chroma.data_loaders.json_loader import JSONDataLoader
 
 PRECHUNKED_DATA = [
     #{
@@ -14,7 +13,6 @@ PRECHUNKED_DATA = [
     #    "type": "book:Distributed Systems 4",
     #    "id": "ds4",
     #    "path": "/home/buddy/Study-Buddy/data/ds4.json",
-    #    "loader": JSONDataLoader
     #},
     {
         "name": "nutrition_science",
@@ -22,11 +20,10 @@ PRECHUNKED_DATA = [
         "type": "book:Nutrition: Science and Everyday Application",
         "id": "ns",
         "path": "/home/buddy/Study-Buddy/data/nutrition.json",
-        #"loader": JSONDataLoader
     }
 ]
 
-class ChromaDB(KnowledgeBaseManager):
+class ChromaDB(KnowledgeBase):
   def __init__(self):
     self.client = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))  # PersistentClient(path='data/chromadb', settings=chromadb.Settings(anonymized_telemetry=False))  # Initialize Chroma Client
     self.collection = [] #self.client.get_or_create_collection(name="course_documents")
