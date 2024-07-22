@@ -1,7 +1,6 @@
 import os
 import yaml
 
-
 class ConfigManager:
   def __init__(self, env: str = None, config_path: str = None):# "./Study-Buddy/config.yaml" ):
 
@@ -25,12 +24,6 @@ class ConfigManager:
 
   def _retrieve_config_path(self, env: str):
 
-    # Navigate up to the project root directory
-        # Navigate up to the project root directory
     current_file_path = os.path.abspath(__file__)
-    project_root = os.path.dirname(os.path.dirname(current_file_path))
-    print(f"BASE DIR: {project_root}")
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
     return os.path.join(project_root, "config", (env or "config") + ".yaml")
-
-
-#config_manager = ConfigManager() # global instance

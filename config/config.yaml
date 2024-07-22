@@ -1,57 +1,59 @@
-MODEL_IDS:
-  cross_encoder: "cross-encoder/ms-marco-MiniLM-L-12-v2"
-  embedding_model: "sentence-transformers/all-mpnet-base-v2"
-  llm: "meta-llama/Meta-Llama-3-8B-Instruct"
-  zero_shot_classifier: "MoritzLaurer/deberta-v3-large-zeroshot-v2.0"
-API_KEYS:
-  # to be implemented 
+
 TASKS:
 
   # Query Tasks
   - name: "PreprocessQueryTask"
     class: src.tasks.preprocess_query.PreprocessQueryTask
-  
+    services:
+      - text_generation
+
   - name: "ReformulateQueryTask"
     class: src.tasks.reformulate_query.ReformulateQueryTask
+    services:
+      - text_generation
 
   - name: "DecomposeQueryTask"
     class: src.tasks.decompose_query.DecomposeQueryTask
+    services:
+      - text_generation
 
     # Classification Tasks
   - name: "ClassifyQueryTask"
     class: src.tasks.classify_query.ClassifyQueryTask
+    services:
+      - classification
 
   - name: "ClassifyMultistepQueryTask"
     class: src.tasks.classify_multistep_query.ClassifyMultistepQueryTask
+    services:
+      - text_generation
+
 
     # Retrieval Tasks
-  - name: "EmbedQueryTask"
-    class: src.tasks.embed_query.EmbedQueryTask
-
   - name: "RetrieveDocumentsTask"
     class: src.tasks.retrieve_documents.RetrieveDocumentsTask
-
+    services:
+      - document_retrieval
+      
   - name: "FilterDocumentsTask"
     class: src.tasks.filter_documents.FilterDocumentsTask
+    services:
+      - text_generation
 
   - name: "ReRankingTask"
     class: src.tasks.rerank_documents.ReRankingTask
-
+    services:
+      - reranking
     # Response Tasks
   - name: "GenerateResponseTask"
     class: src.tasks.generate_response.GenerateResponseTask
+    services:
+      - text_generation
 
   - name: "GradeResponseTask"
     class: src.tasks.grade_response.GradeResponseTask
-
-ROUTING:
-
-    # Response Tasks
-  - name: "GenerateResponseTask"
-    class: src.tasks.generate_response.GenerateResponseTask
-
-  - name: "GradeResponseTask"
-    class: src.tasks.grade_response.GradeResponseTask
+    services:
+      - text_generation
 
 ROUTING:
 
@@ -70,8 +72,6 @@ ROUTING:
     multistep: "ReformulateQueryTask"
     not_multistep: "RetrieveDocumentsTask" 
 
-  EmbedQueryTask:
-    default: "RetrieveDocumentsTask"
   RetrieveDocumentsTask:
     default: "ReRankingTask"
   FilterDocumentsTask:
@@ -85,7 +85,3 @@ ROUTING:
 
   GradeResponseTask:
     end: "EndTask"
-
-
-DATABASE: 
-  # add when we got persistent data.

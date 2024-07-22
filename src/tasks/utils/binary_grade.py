@@ -1,5 +1,4 @@
 import json
-from src.service.manager import ServiceManager
 
 def binary_grade(user_prompt, system_prompt, max_retries: int = 5, temperature: int = 0.01) -> str | None:
   """
@@ -16,14 +15,14 @@ def binary_grade(user_prompt, system_prompt, max_retries: int = 5, temperature: 
   """
   retries = 0
 
-  text_gen_service = ServiceManager.get_service('text_generation')
+  #text_gen_service = ServiceManager.get_service('text_generation')
 
   while retries < max_retries:
-    message = text_gen_service.generate_text( 
-      user_prompt=user_prompt,
-      system_prompt=system_prompt,
-      temperature=temperature
-    )
+    message = "asd" #text_gen_service.generate_text( 
+    #  user_prompt=user_prompt,
+    #  system_prompt=system_prompt,
+    #  temperature=temperature
+    #)
     try:
       data = json.loads(message)
       grade = data["score"]

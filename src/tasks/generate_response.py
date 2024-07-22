@@ -1,12 +1,16 @@
 from src.utils.logging_utils import logger
-from src.service.manager import ServiceManager
 from src.models.context import Context
 from src.models.response import Response
 from src.tasks import Task
 from src.tasks.utils.prompt_library import STANDARD_PROMPT
+from src.interfaces.services.text_generation import TextGenerationService
+from typing import Dict, Any
 
-# TODO: Break out format prompt into a separate task
 class GenerateResponseTask(Task):
+  def __init__(self, name: str, services: Dict[str, Any]):
+    super().__init__(name, services)
+    self.text_generation_service: TextGenerationService = services['text_generation']
+
   def run(self, context: Context) -> Context:
     print("\n")
     logger.debug(f"\n\tQuery:\n{context.query.text}\n\tLabel:\n{context.query.label}")
@@ -24,10 +28,9 @@ class GenerateResponseTask(Task):
         query=context.query.text, 
         retrieved_context=context.retrieved_documents.get_text()
       )
-      
-    text_gen_service = ServiceManager.get_service('text_generation')
+    
     context.response = Response(
-      text=text_gen_service.generate_text( #self.inference_mediator.generate_response(
+      text=self.text_generation_service.generate_text(
         user_prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.7

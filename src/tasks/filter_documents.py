@@ -3,16 +3,20 @@ from src.tasks import Task
 from src.tasks.utils.binary_grade import binary_grade
 from src.tasks.utils.prompt_library import RELEVANCE_PROMPT
 from src.models.context import Context 
-from src.service.manager import ServiceManager
+from src.interfaces.services.text_generation import TextGenerationService
+from typing import Dict, Any
 
 class FilterDocumentsTask(Task):
+  def __init__(self, name: str, services: Dict[str, Any]):
+    super().__init__(name, services)
+    self.text_generation_service: TextGenerationService = services['text_generation']
+
   def run(self, context: Context) -> Context:
     user_prompt, system_prompt = RELEVANCE_PROMPT
 
     for doc in context.retrieved_documents.documents:
-      text_gen_service = ServiceManager.get_service('text_generation')
       
-      message = text_gen_service.generate_text(#self.inference_mediator.generate_response(
+      message = self.text_generation_service.generate_text(#self.inference_mediator.generate_response(
         user_prompt=user_prompt.format(doc, context.query.text), 
         system_prompt=system_prompt,
         temperature=0.1

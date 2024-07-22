@@ -1,8 +1,15 @@
 from src.utils.logging_utils import logger
 from src.tasks import Task
 from src.models.context import Context
+from src.interfaces.services.text_generation import TextGenerationService
+from typing import Dict, Any
+
 
 class DecomposeQueryTask(Task):
+  def __init__(self, name: str, services: Dict[str, Any]):
+    super().__init__(name, services)
+    self.text_generation_service: TextGenerationService = services['text_generation']
+
   def run(self, context: Context):
     user_prompt = """
     User's question: {}
@@ -17,7 +24,7 @@ You are an AI assistant tasked with breaking down complex queries into simpler s
 4. Output the sub-queries in a numbered list
 """
 
-    decomposed_query = self.inference_mediator.generate_response(
+    decomposed_query = self.text_generation_service.generate_text(
         user_prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.1,

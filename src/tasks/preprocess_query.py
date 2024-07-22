@@ -6,7 +6,6 @@ from src.tasks import Task
 
 class PreprocessQueryTask(Task):
   
-  
   def run(self, context: Context):
     logger.debug(f"Raw Query: {context.query.text}")
 

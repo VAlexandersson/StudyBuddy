@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from logging import Logger
 from src.models.context import Context
-from src.interfaces.knowledge_base import DocumentRetriever
+from typing import Dict, Any
 
 class Task(ABC):
-  def __init__(self, name: str, retrieve_documents: DocumentRetriever):
+  def __init__(self, name: str, services: Dict[str, Any]):
     self.name = name
-    self.document_retriever = retrieve_documents
     self.routing_config = {}
+    self.services = services
 
   @abstractmethod
   def run(self, context: Context, logger: Logger) -> Context:

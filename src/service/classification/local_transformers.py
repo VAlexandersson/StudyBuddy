@@ -1,14 +1,15 @@
-from transformers import pipeline
-from typing import Dict, Any, cast, List
+from src.interfaces.services.classification import ClassificationService
 
-class ZeroShotClassifier:
+from typing import Any, Dict, List, cast
+from transformers import pipeline
+
+class LocalTransformerClassification(ClassificationService):
   def __init__(self, model_id: str) -> None:
     # https://arxiv.org/abs/1907.12461
     self.zero_shot_classifier = pipeline(
       "zero-shot-classification", 
       model=model_id
     )
-    print(f"Loaded Zero-Shot Classifier model: {model_id}")
 
   def classify(self, query, labels: List[str], hypothesis_template: str, multi_label=True):
     """

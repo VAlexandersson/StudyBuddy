@@ -1,13 +1,17 @@
 from src.tasks import Task
 from src.utils.logging_utils import logger
-
 from src.models.context import Context
 from src.models.document import RetrievedDocuments
+from src.interfaces.services.document_retrieval import DocumentRetrievalService
+from typing import Dict, Any
 
 class RetrieveDocumentsTask(Task):
-  def run(self, context: Context) -> Context:
+  def __init__(self, name: str, services: Dict[str, Any]):
+    super().__init__(name, services)
+    self.document_retrieval_service: DocumentRetrievalService = services['document_retrieval']
 
-    documents = self.document_retriever.get_collection_documents( 
+  def run(self, context: Context) -> Context:
+    documents = self.document_retrieval_service.get_collection_documents( 
       context.query.text,
       col_name="nutrition_science",
       top_k=5

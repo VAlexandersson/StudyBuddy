@@ -1,7 +1,11 @@
+# services/text_generation/transformer_service.py
+
+from src.interfaces.services.text_generation import TextGenerationService
+
 from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-class TextGenerator:
+class LocalTransformerTextGeneration(TextGenerationService):
   def __init__(self, model_id: str, device: str, attn_implementation: str):
     self.device = device
     self.tokenizer = AutoTokenizer.from_pretrained(model_id)
@@ -18,10 +22,10 @@ class TextGenerator:
     ]
     print(f"Loaded Text Generator model: {model_id}")
 
-  def generate_response(self, user_prompt: str, system_prompt: str, temperature: float = 0.7):
+  def generate_text(self, user_prompt: str, system_prompt: str, temperature: float = 0.7):
     input_text = self._format_prompt(user_prompt, system_prompt)
-    response = self._inference(input_text, temperature)
-    return response
+    text = self._inference(input_text, temperature)
+    return text
 
   def _format_prompt(self, user_prompt: str, system_prompt: str) -> str:
     message = [

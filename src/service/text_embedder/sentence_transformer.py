@@ -1,13 +1,13 @@
 from sentence_transformers import SentenceTransformer
-from src.interfaces.language_models import EmbeddingModelInterface
+from src.interfaces.services.text_embedder import TextEmbeddingService
 
-class TextEmbedder(EmbeddingModelInterface):
+class TextEmbedder(TextEmbeddingService):
   def __init__(self, model_id: str = "BAAI/bge-m3"): #"sentence-transformers/all-mpnet-base-v2"):
     
     self.embedding_model = SentenceTransformer(model_id)
     print(f"Loaded Sentence Transformer model: {model_id}")
     
-  def encode(self, query):
+  def encode(self, query):# -> List | Any:
     query_embeddings = self.embedding_model.encode(
       query,
       convert_to_tensor=True
