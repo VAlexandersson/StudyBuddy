@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer
 from src.interfaces.services.text_embedder import TextEmbeddingService
 
-class TextEmbedder(TextEmbeddingService):
+class TextEmbedding(TextEmbeddingService):
   def __init__(self, model_id: str = "BAAI/bge-m3"): #"sentence-transformers/all-mpnet-base-v2"):
     
     self.embedding_model = SentenceTransformer(model_id)

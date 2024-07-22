@@ -4,15 +4,18 @@ from src.adapter.chromadb import ChromaDB
 from src.utils.config_manager import ConfigManager
 from src.view.command_line_ui import CommandLineUI
 
+from src.service.text_embedder.sentence_transformer import TextEmbedding
 from src.service.text_generation.local_transformers import LocalTransformerTextGeneration
 from src.service.classification.local_transformers import LocalTransformerClassification
 from src.service.reranking.local_transformers import LocalTransformerReranking
 from src.service.document_retrieval.chromadb import ChromaDocumentRetrievalService
 
 def main():
-  
+
   config = ConfigManager()
-  chromadb = ChromaDB()
+
+  text_embedding_service = TextEmbedding(model_id = "BAAI/bge-m3")
+  chromadb = ChromaDB(embedding_service=text_embedding_service)
 
   text_generation_service = LocalTransformerTextGeneration(
     model_id = "meta-llama/Meta-Llama-3-8B-Instruct", 
@@ -30,7 +33,7 @@ def main():
 
   document_retrieval_service = ChromaDocumentRetrievalService(
     client=chromadb.get_client(),
-    embedding_model=chromadb.get_embedding_model()
+    embedding_service=chromadb.get_embedding_service()
   )
   
   rag_system = RAGSystem(

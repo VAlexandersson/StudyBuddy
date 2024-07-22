@@ -1,9 +1,8 @@
 
-from src.interfaces.input_output import IOInterface
 from src.rag_system import RAGSystem
 from src.models.response import Response
 
-class CommandLineUI(IOInterface):
+class CommandLineUI:
   def __init__(self, rag_system: RAGSystem):
     self.rag_system = rag_system
 

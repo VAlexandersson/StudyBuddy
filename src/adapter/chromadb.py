@@ -1,7 +1,7 @@
 # src/adapter/knowledge_base/chroma_db.py
 import chromadb
 import json
-from src.service.text_embedder.sentence_transformer import TextEmbedder
+from src.interfaces.services.text_embedder import TextEmbeddingService
 
 PRECHUNKED_DATA = [
     #{
@@ -22,10 +22,15 @@ PRECHUNKED_DATA = [
 
 
 class ChromaDB:
-    def __init__(self):
-        self.client = chromadb.Client(settings=chromadb.Settings(anonymized_telemetry=False))
-        self.embedding_model = TextEmbedder()
-        self._initialize_collections()
+    def __init__(self, embedding_service: TextEmbeddingService):
+
+      settings = chromadb.Settings(
+        anonymized_telemetry=False
+      )
+      
+      self.client = chromadb.PersistentClient(path="./data/chroma", settings=settings)
+      self.embedding_service = embedding_service
+      self._initialize_collections()
 
     def _initialize_collections(self):
         for data_source in PRECHUNKED_DATA:
@@ -62,7 +67,7 @@ class ChromaDB:
     def _embed_chunks(self, chunks):
         print("Embedding document chunks...")
         text_chunks = [chunk["content"] for chunk in chunks]
-        return self.embedding_model.encode_batch(
+        return self.embedding_service.encode_batch(
             text_chunks, 
             batch_size=32, 
             convert_to_tensor=True, 
@@ -92,5 +97,5 @@ class ChromaDB:
     def get_client(self):
         return self.client
 
-    def get_embedding_model(self):
-        return self.embedding_model
+    def get_embedding_service(self):
+        return self.embedding_service
