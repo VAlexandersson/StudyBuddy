@@ -44,7 +44,7 @@ def main():
     document_retrieval_service=document_retrieval_service
   )
   
-  study_buddy = CommandLineUI(rag_system)
+  study_buddy = CommandLineUI(rag_system) # Can be switched out for a different IO interfaces, like a web interface
   study_buddy.run()
 
 if __name__ == "__main__":

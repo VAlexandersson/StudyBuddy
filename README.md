@@ -1,54 +1,107 @@
-## Study Buddy
+# Study Buddy: A Modular RAG System
 
-### Introduction
+## Overview
 
-Study Buddy is a chatbot designed to assist students with their academic studies. The chatbot uses RAG-module to deliver factoid and relative information. The RAG-module is designed with a with some routing to make it adaptable and easily extendable. It has also been desinged with flexability in mind for continuel development.
+Study Buddy is a sophisticated Retrieval-Augmented Generation (RAG) system designed to assist students in their studies. It combines advanced natural language processing techniques with a modular architecture to provide accurate and context-aware responses to user queries.
 
-INSERT A DIAGRAM HERE <.<
+## Key Features
 
+- **Modular Architecture**: Easily extensible with well-defined interfaces for various services.
+- **Local Model Support**: Utilizes local transformer models for text generation, classification, and reranking.
+- **Efficient Document Retrieval**: Implements ChromaDB for fast and accurate document retrieval.
+- **Query Classification**: Classifies user queries to determine the appropriate response type.
+- **Document Reranking**: Improves relevance of retrieved documents through reranking.
+- **Response Grading**: Evaluates generated responses for quality and relevance.
+- **Configurable**: Utilizes a YAML-based configuration system for easy customization.
 
-### Features
+## System Architecture
 
-- **Curriculum-Specific Knowledge:** The chatbot can be customized with a knowledge base containing information relevant to specific courses or academic subjects.
-- **Retrieval-Augmented Generation (RAG):** For course-related queries, the chatbot employs RAG to retrieve and process relevant documents from the knowledge base before generating a response. 
-- **General Knowledge Queries:** The chatbot can also answer more general knowledge questions.
-- **Dynamic Routing:** A flexible routing mechanism allows the chatbot to adapt its processing pipeline based on the type of query and other contextual factors. 
-- **Response Grading:** The chatbot uses language models to assess the quality of its generated responses, checking for factual accuracy and potential hallucinations.
-- **Configurable Pipeline:**  An external YAML configuration file makes it easy to customize the chatbot's behavior and routing rules without modifying the code.
+The system is composed of several key components:
 
-### Architecture
+1. **RAG System**: The core class that orchestrates the entire process.
+2. **Services**: 
+   - Text Generation
+   - Classification
+   - Reranking
+   - Document Retrieval
+   - Text Embedding
+3. **Tasks**: Modular units of work (e.g., PreprocessQuery, RetrieveDocuments, GenerateResponse)
+4. **Models**: Data structures for Query, Context, Document, and Response
+5. **Adapters**: Integration with external systems (e.g., ChromaDB)
+6. **User Interface**: Currently implements a command-line interface
 
-The chatbot follows a modular pipeline structure:
+## Installation
 
-1.  **Preprocessing:** The user query is cleaned and standardized.
-2.  **Classification:** The query is classified into different categories (e.g., "course\_query", "general\_query"). 
-3.  **Dynamic Routing:** The pipeline flow is directed based on the query classification and other criteria. 
-4.  **RAG Task (Optional):** If RAG is triggered, relevant documents are retrieved, filtered, and ranked. 
-5.  **Response Generation:** A language model generates a response based on the query and any relevant documents.
-6.  **Response Grading:**  The generated response is evaluated for quality.
+```bash
+git clone https://github.com/your-repo/study-buddy.git
+cd study-buddy
+pip install -r requirements.txt
+```
 
-### Configuration
+## Configuration
 
-The pipeline's behavior and routing rules can be easily modified using an external YAML configuration file. This provides flexibility to customize the chatbot for specific use cases.
+Edit the `config.yaml` file in the `config` directory to customize the system's behavior, including model selections and task configurations.
 
-### Future Directions
+## Usage
 
--  Enhance the dynamic routing with more sophisticated rules and conditions.
--  Incorporate user profiles to personalize the responses. 
--  Develop an interactive learning mode, engaging users with follow-up questions and learning resources. 
-## Papers:
+Run the main script to start the Study Buddy system:
 
-| Paper                                                                                                 | link                             |
-| ----------------------------------------------------------------------------------------------------- | -------------------------------- |
-| Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection                        | https://arxiv.org/abs/2310.11511 |
-| Adaptive-RAG: Learning to Adapt Retrieval-Augmented Large Language Models through Question Complexity | https://arxiv.org/abs/2403.14403 |
-| Corrective Retrieval Augmented Generation                                                             | https://arxiv.org/abs/2401.15884 |
-|                                                                                                       |                                  |
-|                                                                                                       |                                  |
+```bash
+python main.py
+```
 
-### Embeddings and Reranking:
+## Project Structure
 
-[Reranking Leaderboard](https://huggingface.co/spaces/AIR-Bench/leaderboard)
+```
+study-buddy/
+│
+├── src/
+│   ├── adapter/
+│   │   └── chromadb.py
+│   ├── interfaces/
+│   │   └── services/
+│   │       ├── classification.py
+│   │       ├── document_retrieval.py
+│   │       ├── reranking.py
+│   │       ├── text_embedder.py
+│   │       └── text_generation.py
+│   ├── models/
+│   │   ├── context.py
+│   │   ├── document.py
+│   │   ├── query.py
+│   │   └── response.py
+│   ├── service/
+│   │   ├── classification/
+│   │   ├── document_retrieval/
+│   │   ├── reranking/
+│   │   ├── text_embedder/
+│   │   └── text_generation/
+│   ├── tasks/
+│   │   ├── utils/
+│   │   ├── classify_query.py
+│   │   ├── generate_response.py
+│   │   ├── grade_response.py
+│   │   ├── preprocess_query.py
+│   │   ├── rerank_documents.py
+│   │   └── retrieve_documents.py
+│   ├── utils/
+│   │   ├── config_manager.py
+│   │   └── logging_utils.py
+│   ├── view/
+│   │   └── command_line_ui.py
+│   └── rag_system.py
+├── config/
+│   └── config.yaml
+├── data/
+│   └── chroma/
+├── main.py
+└── requirements.txt
+```
 
-[BGE M3-Embedding: Multi-Lingual, Multi-Functionality, Multi-Granularity Text Embeddings Through Self-Knowledge Distillation](https://arxiv.org/abs/2402.03216)
-[Making Large Language Models A Better Foundation For Dense Retrieval](https://arxiv.org/abs/2312.15503)
+## Extending the System
+
+To add new functionality:
+
+1. Implement new services by extending the appropriate interface in `src/interfaces/services/`.
+2. Create new tasks in the `src/tasks/` directory.
+3. Update the `config.yaml` file to include new tasks or services.
