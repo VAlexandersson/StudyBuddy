@@ -1,32 +1,29 @@
-# test_rag_system.py
 import pytest
-from unittest.mock import AsyncMock
+from src.rag_system import RAGSystem
 
-from src.models.context import Context
-from src.models.query import Query
-from src.models.response import Response
+@pytest.fixture
+def rag_system(config, text_generation_service, classification_service, reranking_service, document_retrieval_service):
+    return RAGSystem(
+        config=config,
+        text_generation_service=text_generation_service,
+        classification_service=classification_service,
+        reranking_service=reranking_service,
+        document_retrieval_service=document_retrieval_service
+    )
 
 @pytest.mark.asyncio
 async def test_process_query(rag_system):
-    # Mock the task
-    mock_task = AsyncMock()
-    mock_task.run.return_value = Context(response=Response(text="Processed response"))
-    mock_task.get_next_task.return_value = None
-    rag_system.tasks["PreprocessQueryTask"] = mock_task
-
-    response = await rag_system.process_query("test query")
-
-    assert response.text == "Processed response"
-    #await 
-    mock_task.run.assert_called_once()
+    query = "What is the capital of France?"
+    response = await rag_system.process_query(query)
+    assert isinstance(response.text, str)
+    assert len(response.text) > 0
+    assert "Paris" in response.text
 
 @pytest.mark.asyncio
-async def test_run_task(rag_system):
-    mock_task = AsyncMock()
-    mock_task.run.return_value = Context(response=Response(text="Task response"))
-
-    context = Context(query=Query(text="test query"))
-    new_context = await rag_system._run_task(mock_task, context)
-
-    assert new_context.response.text == "Task response"
-    await mock_task.run.assert_called_once_with(context)
+async def test_process_complex_query(rag_system):
+    query = "Compare and contrast the nutritional value of apples and oranges."
+    response = await rag_system.process_query(query)
+    assert isinstance(response.text, str)
+    assert len(response.text) > 0
+    assert "apple" in response.text.lower()
+    assert "orange" in response.text.lower()
