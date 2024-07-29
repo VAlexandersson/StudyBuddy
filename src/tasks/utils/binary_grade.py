@@ -1,6 +1,6 @@
 import json
 
-def binary_grade(user_prompt, system_prompt, max_retries: int = 5, temperature: int = 0.01) -> str | None:
+async def binary_grade(user_prompt, system_prompt, max_retries: int = 5, temperature: int = 0.01) -> str | None:
   """
   Generates a binary grade based on user and system prompts.
 

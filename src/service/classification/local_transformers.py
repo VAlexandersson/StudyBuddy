@@ -1,34 +1,31 @@
 from src.interfaces.services.classification import ClassificationService
-
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List
 from transformers import pipeline
+import asyncio
 
 class LocalTransformerClassification(ClassificationService):
-  def __init__(self, model_id: str) -> None:
-    # https://arxiv.org/abs/1907.12461
-    self.zero_shot_classifier = pipeline(
-      "zero-shot-classification", 
-      model=model_id
-    )
+    def __init__(self, model_id: str) -> None:
+        self.zero_shot_classifier = pipeline(
+            "zero-shot-classification", 
+            model=model_id
+        )
 
-  def classify(self, query, labels: List[str], hypothesis_template: str, multi_label=True):
-    """
-    Classifies the given query using zero-shot classification.
+    async def classify(self, query: str, labels: List[str], hypothesis_template: str, multi_label: bool = True) -> Dict[str, Any]:
+        loop = asyncio.get_event_loop()
+        output = await loop.run_in_executor(
+            None,
+            self._classify_sync,
+            query,
+            labels,
+            hypothesis_template,
+            multi_label
+        )
+        return output
 
-    Args:
-      query (str): The input query to classify.
-      labels (List[str]): The list of labels to classify the query against.
-      hypothesis_template (str): The template for generating hypotheses.
-      multi_label (bool, optional): Whether to allow multiple labels for classification. Defaults to True.
-
-    Returns:
-      Dict[str, Any]: The classification output.
-
-    """
-    output = cast(Dict[str, Any], self.zero_shot_classifier(
-      query,
-      labels,
-      hypothesis_template=hypothesis_template,
-      multi_label=multi_label,
-    ))
-    return output
+    def _classify_sync(self, query: str, labels: List[str], hypothesis_template: str, multi_label: bool):
+        return self.zero_shot_classifier(
+            sequences=query,
+            candidate_labels=labels,
+            hypothesis_template=hypothesis_template,
+            multi_label=multi_label
+        )

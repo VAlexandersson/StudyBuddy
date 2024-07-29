@@ -15,7 +15,7 @@ class ReformulateQueryTask(Task):
     super().__init__(name, services)
     self.text_generation_service: TextGenerationService = services['text_generation']
 
-  def run(self, context: Context):
+  async def run(self, context: Context):
     logger.debug(f"Raw Query: {context.query.text}")
 
     system_prompt, user_prompt = REFORMULATE_QUERY_PROMPT

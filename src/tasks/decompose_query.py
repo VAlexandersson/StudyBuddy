@@ -10,7 +10,7 @@ class DecomposeQueryTask(Task):
     super().__init__(name, services)
     self.text_generation_service: TextGenerationService = services['text_generation']
 
-  def run(self, context: Context):
+  async def run(self, context: Context):
     user_prompt = """
     User's question: {}
 
