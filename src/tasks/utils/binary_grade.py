@@ -1,6 +1,7 @@
 import json
+from src.interfaces.services.text_generation import TextGenerationService
 
-async def binary_grade(user_prompt, system_prompt, max_retries: int = 5, temperature: int = 0.01) -> str | None:
+async def binary_grade(user_prompt, system_prompt, text_gen_service: TextGenerationService, max_retries: int = 5, temperature: int = 0.01) -> str | None:
   """
   Generates a binary grade based on user and system prompts.
 
@@ -15,14 +16,14 @@ async def binary_grade(user_prompt, system_prompt, max_retries: int = 5, tempera
   """
   retries = 0
 
-  #text_gen_service = ServiceManager.get_service('text_generation')
-
   while retries < max_retries:
-    message = "asd" #text_gen_service.generate_text( 
-    #  user_prompt=user_prompt,
-    #  system_prompt=system_prompt,
-    #  temperature=temperature
-    #)
+    
+    message = await text_gen_service.generate_text(
+      user_prompt=user_prompt,
+      system_prompt=system_prompt,
+      temperature=temperature
+    )
+
     try:
       data = json.loads(message)
       grade = data["score"]

@@ -24,7 +24,7 @@ You are an AI assistant tasked with breaking down complex queries into simpler s
 4. Output the sub-queries in a numbered list
 """
 
-    decomposed_query = self.text_generation_service.generate_text(
+    decomposed_query = await self.text_generation_service.generate_text(
         user_prompt=user_prompt,
         system_prompt=system_prompt,
         temperature=0.1,
