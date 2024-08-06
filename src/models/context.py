@@ -17,4 +17,3 @@ class Context(BaseModel):
 
   def add_to_history(self, task_name: str, output: Optional[Dict[str, Any]] = None):
     self.task_history.append({"task": task_name, "output": output})
-    

@@ -60,7 +60,7 @@ class RAGSystem:
 
         return task_instances
 
-    async def process_query(self, query: str) -> Response:
+    async def process_query(self, query: str) -> Context:
         context = Context(query=Query(text=query))
         current_task = self.tasks["PreprocessQueryTask"]
 
@@ -70,13 +70,11 @@ class RAGSystem:
             current_task = self.tasks.get(next_task_name)
             context.routing_key = "default"
         
-        return context.response
+        return context
 
     async def _run_task(self, task, context: Context) -> Context:
         try:
             return await task.run(context)
         except Exception as e:
-            # Handle exceptions, log errors, etc.
             print(f"Error running task {task.name}: {str(e)}")
-            # You might want to set an error response or take other actions here
             return context
