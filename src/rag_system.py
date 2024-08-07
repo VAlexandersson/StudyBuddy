@@ -2,8 +2,8 @@ from src.models.context import Context
 from src.models.query import Query
 from pydantic import BaseModel
 from src.models.document import DocumentObject
+from src.task_manager import TaskManager
 from typing import List
-
 import importlib
 
 from src.interfaces.services.document_retrieval import DocumentRetrievalService
@@ -28,13 +28,16 @@ class RAGSystem:
         document_retrieval_service: DocumentRetrievalService
     ):
         self.config = config
-        self.text_generation_service = text_generation_service
-        self.classification_service = classification_service
-        self.reranking_service = reranking_service
-        self.document_retrieval_service = document_retrieval_service
         
-        self.tasks = self._initialize_tasks()
-    
+        services = {
+          "text_generation_service": text_generation_service,
+          "classification_service": classification_service,
+          "reranking_service": reranking_service,
+          "document_retrieval_service": document_retrieval_service
+        }
+        
+        self.task_manager = TaskManager(config._config, services)
+        
     def _initialize_tasks(self):
         task_config = self.config.get("TASKS", [])
         routing_config = self.config.get("ROUTING", {})
@@ -69,13 +72,18 @@ class RAGSystem:
 
     async def process_query(self, query: str) -> Response:
         context = Context(query=Query(text=query))
-        current_task = self.tasks["PreprocessQueryTask"]
+        current_task = "PreprocessQueryTask"
 
-        while current_task:
-            context = await self._run_task(current_task, context)
-            next_task_name = current_task.get_next_task(context.routing_key)
-            current_task = self.tasks.get(next_task_name)
-            context.routing_key = "default"
+        while current_task != "EndTask":
+
+          context = await self.task_manager.execute_task(current_task, context)
+          current_task = self.task_manager.get_next_task(current_task, context.routing_key)
+
+          
+            #context = await self._run_task(current_task, context)
+            #next_task_name = current_task.get_next_task(context.routing_key)
+            #current_task = self.tasks.get(next_task_name)
+          context.routing_key = "default"
 
         response = Response(
             query=context.query.text,

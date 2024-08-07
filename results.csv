@@ -1,32 +1,31 @@
 query,response,ground_truth,rouge_scores,bleu_score,semantic_similarity,exact_match,f1_score,answer_relevancy
 "Explain how a deficiency in vitamin D can
 negatively affect bone health","A deficiency in vitamin D can negatively affect
-bone health in several ways.  In children, a
-vitamin D deficiency can cause rickets, a disease
-characterized by soft, weak, and deformed bones.
-This is because vitamin D plays a critical role in
-the regulation of calcium and phosphorus levels in
-the body, which are essential for bone
-mineralization.  In adults, a vitamin D deficiency
-can lead to osteomalacia, a condition
-characterized by softening of the bones, reduced
-bone mineral density, and an increased risk of
-osteoporosis. Vitamin D deficiency can also cause
-bone pain, muscle weakness, and an increased risk
-of fractures.  Vitamin D plays a critical role in
-maintaining bone health by regulating calcium and
-phosphorus levels in the body. It does this by
-increasing the absorption of these minerals in the
-intestine and by stimulating the release of
-calcium and phosphorus from the bones. Vitamin D
-also works with parathyroid hormone to reduce
-calcium loss in the urine and to stimulate the
-release of calcium and phosphorus from the bones.
-In addition to its role in bone health, vitamin D
-also has other important functions in the body,
-including regulating cellular differentiation and
-growth, immunity, insulin secretion, and blood
-pressure.","Vitamin D plays a crucial role in maintaining
+bone health in several ways. Vitamin D plays a
+critical role in maintaining blood calcium
+homeostasis and enhancing the supply of calcium
+and phosphorus for bone mineralization. When
+vitamin D levels are low, the body is unable to
+absorb calcium and phosphorus properly, leading to
+poor bone mineralization and increased risk of
+osteoporosis.  In children, vitamin D deficiency
+can cause rickets, a disease characterized by
+soft, weak, and deformed bones. In adults, vitamin
+D deficiency can cause osteomalacia, which is
+characterized by softening of bones, reduced bone
+mineral density, and increased risk of
+osteoporosis. Additionally, vitamin D deficiency
+can lead to bone pain, muscle weakness, and
+increased risk of fractures, particularly in older
+adults.  Vitamin D deficiency can also disrupt the
+normal functioning of the parathyroid gland,
+leading to an increase in parathyroid hormone
+(PTH) production. This can further exacerbate bone
+loss and increase the risk of osteoporosis.  In
+summary, a deficiency in vitamin D can have
+significant negative effects on bone health,
+including poor bone mineralization, osteoporosis,
+and increased risk of fractures.","Vitamin D plays a crucial role in maintaining
 blood calcium homeostasis, which is essential for
 bone health. Our bones are constantly being
 remodeled throughout our lives, meaning old bone
@@ -49,45 +48,41 @@ children, this deficiency manifests as rickets, a
 disease characterized by soft, weak, and deformed
 bones. In adults, it leads to osteomalacia, with
 softening of bones, reduced bone mineral density,
-and increased risk of osteoporosis. [363, 392]","ROUGE-1: 0.52915
-ROUGE-2: 0.29268
-ROUGE-L: 0.52018",0.18865,0.88400,0.00000,0.49215,0.84721
+and increased risk of osteoporosis. [363, 392]","ROUGE-1: 0.48182
+ROUGE-2: 0.26415
+ROUGE-L: 0.47273",0.21329,0.86991,0.00000,0.48066,0.85326
 "How does the process of photosynthesis contribute
 to the food we eat?","Photosynthesis plays a crucial role in the food we
-eat. The energy stored in carbohydrate molecules
-from photosynthesis passes through the food chain,
-ultimately ending up in the food we consume. For
-example, a wolf preying on a deer receives a
-portion of the energy that originated in the
-photosynthetic vegetation that the deer consumed.
-Our food supply is directly linked to
-photosynthesis. Many grocery store products, such
-as bread, cereals, and pastas, come from starchy
-grains that are dependent on photosynthesis. Meat
-and dairy products are linked to photosynthesis
-because the animals were fed plant-based foods.
-Even desserts and drinks contain sugar, which is
-derived from photosynthesis. Virtually every spice
-and flavoring in the spice aisle was produced by a
-plant, making photosynthesis a vital part of every
-meal.  The energy stored in glucose from
-photosynthesis is used by animals and humans to
-power their daily functions. This energy is
-captured in the form of ATP, which is the energy-
-containing molecule found in the cells of all
-animals and humans. When we eat foods that contain
-starch, we must digest that starch down into
-single sugars (glucose) in order for the glucose
-to be absorbed into the intestinal cells, where it
-will enter the bloodstream to be carried to all
-cells of the body to use as an energy source.  In
-summary, photosynthesis is essential for the food
-we eat, as it provides the energy and nutrients
-necessary for the production of food products. The
+eat by providing the energy source that animals
+and humans use to power their daily functions.
+During photosynthesis, plants convert sunlight,
+carbon dioxide, and water into glucose, a simple
+carbohydrate molecule that contains the energy
+needed for all living organisms to survive.  The
+energy stored in glucose from photosynthesis
+passes through the food chain, from plants to
+animals, and is eventually consumed by humans. For
+example, when we eat plants, such as fruits and
+vegetables, we are consuming glucose that was
+produced through photosynthesis. Similarly, when
+we eat animal products, such as meat and dairy, we
+are consuming glucose that was produced through
+photosynthesis in the plants that the animals ate.
+In addition, many of the products we find in
+grocery stores, such as bread, cereals, and
+pastas, are made from starchy grains that are
+derived from photosynthesis-dependent plants. Even
+desserts and drinks, such as sucrose, which is a
+plant product, contain glucose that was produced
+through photosynthesis.  In summary,
+photosynthesis is the process by which plants
+convert sunlight, carbon dioxide, and water into
+glucose, which is the energy source that animals
+and humans use to power their daily functions. The
 energy stored in glucose from photosynthesis is
-used by animals and humans to power their daily
-functions, making photosynthesis a vital part of
-our daily lives.","Photosynthesis is the process by which plants
+passed through the food chain and is eventually
+consumed by humans, making photosynthesis a vital
+component of our food supply.","Photosynthesis is the process by which plants
 capture energy from the sun and convert it into
 glucose (a type of sugar). This glucose is stored
 in plants as starch, which is found in seeds,
@@ -102,6 +97,6 @@ and this energy is passed on to us when we consume
 these animals. (order: 9) Essentially, every food
 item we consume can be traced back to
 photosynthesis, as it forms the basis of the food
-chain. (order: 9)","ROUGE-1: 0.37500
-ROUGE-2: 0.10435
-ROUGE-L: 0.35714",0.00000,0.88573,0.00000,0.35088,0.75210
+chain. (order: 9)","ROUGE-1: 0.34555
+ROUGE-2: 0.12329
+ROUGE-L: 0.32461",0.05741,0.89085,0.00000,0.37288,0.73449

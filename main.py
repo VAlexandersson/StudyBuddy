@@ -35,12 +35,14 @@ async def init_services():
         client=chromadb.get_client(),
         embedding_service=chromadb.get_embedding_service()
     )
+
     services = {
         "text_generation_service": text_generation_service,
         "classification_service": classification_service,
         "reranking_service": reranking_service,
         "document_retrieval_service": document_retrieval_service
     }
+    
     return services
 
 async def main(mode = 'eval'):
@@ -51,7 +53,6 @@ async def main(mode = 'eval'):
     if mode == 'eval':
       eval_buddy = RAGEvaluator(rag_system=rag_system)
       await eval_buddy.run()
-      #print("To be implemented..")
 
     else:
       study_buddy = CommandLineUI(rag_system)
