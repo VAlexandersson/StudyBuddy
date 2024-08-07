@@ -4,11 +4,7 @@ from pydantic import BaseModel
 class DocumentObject(BaseModel):
   id: str
   document: str
-  embeddings: List = None
   metadatas: Dict
-
-  refined_document: Optional[str] = None
-
 
 class RetrievedDocuments(BaseModel):
   documents: List[DocumentObject] = []

@@ -1,9 +1,5 @@
 import asyncio
-from src.rag_system import RAGSystem
-from src.models.response import Response
-from src.models.context import Context
-from src.models.query import Query
-from src.models.document import RetrievedDocuments
+from src.rag_system import RAGSystem, Response
 
 class CommandLineUI:
     def __init__(self, rag_system: RAGSystem):
@@ -12,9 +8,9 @@ class CommandLineUI:
     async def get_input(self) -> str:
         return await asyncio.get_event_loop().run_in_executor(None, input, "User: ")
 
-    def post_output(self, context: Context):
-        response = context.response.text
-        print(f"Assistant: {response}")
+    def post_output(self, response: Response):  
+        response_text = response.answer
+        print(f"Assistant: {response_text}")
 
     async def run(self):
         while True:

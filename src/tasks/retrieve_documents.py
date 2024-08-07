@@ -23,10 +23,8 @@ class RetrieveDocumentsTask(Task):
       retrieved_documents = RetrievedDocuments(documents=documents)
 
       context.retrieved_documents = retrieved_documents
-      #logger.debug(f"Retrieved Documents: {retrieved_documents.get_text()}")
       return context
     except Exception as e:
       logger.error(f"Error in RetrieveDocumentsTask: {e}")
-      # You might want to set an error state in the context here
       context.error = str(e)
       return context

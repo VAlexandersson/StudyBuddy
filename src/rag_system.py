@@ -1,6 +1,8 @@
 from src.models.context import Context
 from src.models.query import Query
-from src.models.response import Response
+from pydantic import BaseModel
+from src.models.document import DocumentObject
+from typing import List
 
 import importlib
 
@@ -10,6 +12,11 @@ from src.interfaces.services.classification import ClassificationService
 from src.interfaces.services.reranking import RerankingService
 
 from src.utils.config_manager import ConfigManager
+
+class Response(BaseModel):
+    query: str
+    context_objects: List[DocumentObject]
+    answer: str
 
 class RAGSystem:
     def __init__(
@@ -60,7 +67,7 @@ class RAGSystem:
 
         return task_instances
 
-    async def process_query(self, query: str) -> Context:
+    async def process_query(self, query: str) -> Response:
         context = Context(query=Query(text=query))
         current_task = self.tasks["PreprocessQueryTask"]
 
@@ -69,8 +76,14 @@ class RAGSystem:
             next_task_name = current_task.get_next_task(context.routing_key)
             current_task = self.tasks.get(next_task_name)
             context.routing_key = "default"
-        
-        return context
+
+        response = Response(
+            query=context.query.text,
+            context_objects=context.retrieved_documents.documents,
+            answer=context.response.text
+        )
+
+        return response
 
     async def _run_task(self, task, context: Context) -> Context:
         try:
