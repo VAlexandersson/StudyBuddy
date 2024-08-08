@@ -1,7 +1,7 @@
 from src.utils.logging_utils import logger
 from src.models.context import Context
 from src.tasks import Task
-from src.tasks.utils.binary_grade import binary_grade
+from src.tasks.tools.binary_grade import binary_grade
 from src.tasks.utils.prompt_library import HALLUCINATION_PROMPT
 from src.interfaces.services.text_generation import TextGenerationService
 from typing import Dict, Any

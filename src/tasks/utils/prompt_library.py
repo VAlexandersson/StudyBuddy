@@ -1,7 +1,13 @@
 RELEVANCE_PROMPT = (
-  """You are a grader assessing relevance of the retrieved document to a user question. 
-If the retrieved document contains information related to answering the query, grade it as relevant. It does not need to be a stringent test. The goal is to filter out erroneous retrievals. Give a binary score 'yes' or 'no' score to indicate whether the context is relevant to the question. 
-Provide the binary score as a JSON with a single key 'score' and no premable or explaination.""", 
+  """Assess if the retrieved document is relevant to the query. 
+
+Give a simple 'yes' or 'no' answer:
+- 'yes' if the document contains any information related to the query
+- 'no' if the document is completely unrelated
+
+Respond with only this JSON format:
+{"score": "yes"} or {"score": "no"}
+""", 
   """Retrieved document: \n\n {retrieved_context} \n\nQuery: {query}\n"""
 )
 

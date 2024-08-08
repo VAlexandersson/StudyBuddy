@@ -1,8 +1,6 @@
 from src.interfaces.services.text_generation import TextGenerationService
-from src.utils.logging_utils import logger
 from src.models.context import Context
 from src.tasks import Task
-from src.tasks.utils.binary_grade import binary_grade
 from typing import Any, Dict
 
 MULTISTEP_QUERY_PROMPT = (
