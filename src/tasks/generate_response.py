@@ -21,7 +21,7 @@ class GenerateResponseTask(Task):
         else:
             context.routing_key = "grade"
 
-            logger.info(f"\n\tRetrieved Documents:\n {context.retrieved_documents.get_text()}\n")
+            #logger.info(f"\n\tRetrieved Documents:\n {context.retrieved_documents.get_text()}\n")
             system_prompt = STANDARD_PROMPT["system"]
             user_prompt = STANDARD_PROMPT["user"]
             user_prompt = user_prompt.format(
@@ -35,4 +35,5 @@ class GenerateResponseTask(Task):
             temperature=0.7
         )
         context.response = Response(text=response_text)
+        print(f"\n\tResponse:\n{context.response.text}\n")
         return context

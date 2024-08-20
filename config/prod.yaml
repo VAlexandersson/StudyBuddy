@@ -1,0 +1,89 @@
+
+TASKS:
+
+  # Query Tasks
+  - name: "PreprocessQueryTask"
+    class: src.tasks.preprocess_query.PreprocessQueryTask
+    services:
+      - text_generation
+
+  - name: "ReformulateQueryTask"
+    class: src.tasks.reformulate_query.ReformulateQueryTask
+    services:
+      - text_generation
+
+  - name: "DecomposeQueryTask"
+    class: src.tasks.decompose_query.DecomposeQueryTask
+    services:
+      - text_generation
+
+    # Classification Tasks
+  - name: "ClassifyQueryTask"
+    class: src.tasks.classify_query.ClassifyQueryTask
+    services:
+      - classification
+
+  - name: "ClassifyMultistepQueryTask"
+    class: src.tasks.classify_multistep_query.ClassifyMultistepQueryTask
+    services:
+      - text_generation
+
+
+    # Retrieval Tasks
+  - name: "RetrieveDocumentsTask"
+    class: src.tasks.retrieve_documents.RetrieveDocumentsTask
+    services:
+      - document_retrieval
+      
+  - name: "FilterDocumentsTask"
+    class: src.tasks.filter_documents.FilterDocumentsTask
+    services:
+      - text_generation
+
+  - name: "ReRankingTask"
+    class: src.tasks.rerank_documents.ReRankingTask
+    services:
+      - reranking
+    # Response Tasks
+  - name: "GenerateResponseTask"
+    class: src.tasks.generate_response.GenerateResponseTask
+    services:
+      - text_generation
+
+  - name: "GradeResponseTask"
+    class: src.tasks.grade_response.GradeResponseTask
+    services:
+      - text_generation
+
+
+  - name: "ComplexQueryAnalysisTask"
+    class: src.tasks.complex_query_analysis.ComplexQueryAnalysisTask
+    services:
+      - text_generation
+      - document_retrieval
+
+ROUTING:
+
+  PreprocessQueryTask:
+    default: "ClassifyQueryTask"
+
+  ClassifyQueryTask:
+    question: "RetrieveDocumentsTask" 
+    command: "RetrieveDocumentsTask"  
+    default: "GenerateResponseTask"
+  ComplexQueryAnalysisTask:
+    default: "GradeResponseTask"
+
+  RetrieveDocumentsTask:
+    default: "FilterDocumentsTask"
+  FilterDocumentsTask:
+    default: "ReRankingTask"
+  ReRankingTask:
+    default: "GenerateResponseTask"
+
+  GenerateResponseTask: 
+    grade: "GradeResponseTask"
+    end: "EndTask"
+
+  GradeResponseTask:
+    end: "EndTask"

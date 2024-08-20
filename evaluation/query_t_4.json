@@ -1,0 +1,17 @@
+{
+  "query": "what is the name of the hormone secreted by adipose tissue that helps regulate appetite and how does it work",
+  "summarized_documents": [
+    {
+      "id": "ns_119",
+      "summarized_document": "Leptin is the hormone secreted by adipose tissue that helps regulate appetite, signaling the body's energy status and influencing appetite."
+    },
+    {
+      "id": "ns_232",
+      "summarized_document": "The hormone secreted by adipose tissue that helps regulate appetite is leptin. Leptin is produced as fat stores increase and communicates to the satiety center in the hypothalamus that the body is in positive energy balance, suppressing hunger and increasing energy expenditure. Higher levels of leptin act on the brain to reduce hunger and increase energy expenditure, helping to regulate appetite and energy balance."
+    },
+    {
+      "id": "ns_117",
+      "summarized_document": "The hormone secreted by adipose tissue that helps regulate appetite is not explicitly mentioned in the provided text. However, it is mentioned that adipose tissue can affect hormonal and metabolic changes, which can impact appetite and overall health."
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "query": "compare and contrast food intolerances and food allergies including their causes symptoms and treatment",
+  "summarized_documents": [
+    {
+      "id": "ns_36",
+      "summarized_document": "Food intolerances, food allergies, and celiac disease are conditions that affect the GI tract and body, often confused with each other. They have different causes, symptoms, and treatment approaches."
+    },
+    {
+      "id": "ns_37",
+      "summarized_document": "A food intolerance occurs when the body has difficulty digesting a specific food or nutrient, causing GI symptoms like gas, bloating, and diarrhea. Unlike food allergies, the immune system is not involved, and symptoms are generally not dangerous. Lactose intolerance is a common food intolerance caused by the body not producing enough lactase enzyme, resulting in symptoms within 30 minutes to 2 hours of consuming dairy foods. People with lactose intolerance can often consume small amounts of lactose without symptoms and can take lactase enzyme supplements or consume lactose-free milk. Lactose intolerance is common worldwide, affecting 65% of the human population in adulthood, but prevalence varies among cultures."
+    },
+    {
+      "id": "ns_39",
+      "summarized_document": "Food allergies cause a serious reaction even with small amounts consumed, unlike food intolerances. New therapies expose patients to small amounts of allergen to teach tolerance, reducing severe reaction risk. Blood tests claiming to screen for 90-100 food allergies are not recommended as they may cause unnecessary food avoidance."
+    },
+    {
+      "id": "ns_38",
+      "summarized_document": "A food allergy occurs when the immune system mistakenly identifies a food protein as an invasive threat, causing an allergic reaction. Symptoms include skin rashes, swelling, difficulty breathing, and nausea. Food allergies are diagnosed through IgE blood tests, skin prick tests, and oral food challenges. Common food allergies include peanuts, tree nuts, milk, shellfish, eggs, fish, wheat, soy, and sesame. Food intolerances, on the other hand, are not immune system reactions and do not involve IgE antibodies. They can cause symptoms such as bloating, gas, and diarrhea, but are not life-threatening. Treatment for food allergies involves strict avoidance of the allergen and carrying injectable epinephrine in case of accidental consumption."
+    },
+    {
+      "id": "ns_478",
+      "summarized_document": "Food intolerances and food allergies have different causes, symptoms, and treatments. Food intolerances are non-allergic reactions to certain foods, often caused by lactose intolerance or gluten sensitivity. Symptoms include bloating, gas, and stomach cramps. Treatment involves avoiding the offending food or taking supplements. Food allergies, on the other hand, are immune system reactions to specific foods, often caused by peanut, egg, or milk. Symptoms include hives, vomiting, wheezing, and difficulty breathing. Treatment involves avoiding the offending food and carrying an EpiPen. Early introduction of potentially allergenic foods, such as peanuts and eggs, has been shown to reduce the risk of developing an allergy. In the first year, it's recommended to avoid certain foods, including cow's milk, plant-based beverages, juice, honey, unpasteurized dairy products, raw or undercooked meats or eggs, added sugar and salt, and choking hazards."
+    }
+  ]
+}

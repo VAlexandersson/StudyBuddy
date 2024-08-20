@@ -27,6 +27,10 @@ class TaskManager:
       task_instances[task_name] = task_instance
 
     return task_instances
+  
+  def reload_tasks(self):
+    """Reload and reinitialize tasks."""
+    self.tasks = self._initialize_tasks(self.config, self.services)
 
   def get_task(self, task_name: str) -> Task:
     task = self.tasks.get(task_name)

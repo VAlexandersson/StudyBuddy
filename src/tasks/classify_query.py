@@ -17,7 +17,7 @@ class ClassifyQueryTask(Task):
 
   async def run(self, context: Context) -> Context:
 
-    label = classify_and_get_top_label(self.classification_service, context.query.text, LABELS, HYPOTHESIS_TEMPLATE)
+    label = await classify_and_get_top_label(self.classification_service, context.query.text, LABELS, HYPOTHESIS_TEMPLATE)
 
     route = label if (label in ROUTES) else "default"
     

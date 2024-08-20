@@ -1,5 +1,5 @@
-import nltk
-nltk.download('punkt')
+
+import shutil
 
 import json
 from src.rag_system import RAGSystem
@@ -12,8 +12,10 @@ from rouge import Rouge
 from nltk.translate.bleu_score import sentence_bleu
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
-import numpy as np
 from collections import Counter
+
+import nltk
+nltk.download('punkt')
 
 class RAGEvaluator:
     def __init__(self, rag_system: RAGSystem, dataset_path: str = None):
@@ -29,13 +31,17 @@ class RAGEvaluator:
         else:
             return [
                 {
+                    "query": "How do bile salts contribute to both the emulsification and absorption of lipids in the small intestine?",
+                    "ground_truth": "Bile salts play a dual role in lipid digestion and absorption in the small intestine. First, they act as emulsifiers, breaking large fat globules into smaller droplets. This increases the surface area for digestive enzymes to act upon. Later in the process, bile salts help with absorption by clustering around the products of fat digestion to form structures called micelles. These micelles help the fats get close enough to the microvilli of intestinal cells for absorption to occur."
+                },
+                {
                     "query": "Explain how a deficiency in vitamin D can negatively affect bone health",
                     "ground_truth": "Vitamin D plays a crucial role in maintaining blood calcium homeostasis, which is essential for bone health. Our bones are constantly being remodeled throughout our lives, meaning old bone is broken down and new bone is built up. This process requires a steady supply of calcium. [362]\nVitamin D works in conjunction with parathyroid hormone (PTH) to regulate blood calcium levels. When blood calcium levels drop, PTH is released, which stimulates the conversion of vitamin D to its active form, calcitriol. Calcitriol increases calcium absorption in the intestine and works with PTH to reduce calcium loss in urine and stimulate the release of calcium from bone. [369]\nWithout adequate vitamin D, the body can't absorb enough calcium to support the continuous rebuilding of bone tissue during remodeling. This leads to poor bone mineralization, resulting in weaker bones that are more prone to fracture. [392] In children, this deficiency manifests as rickets, a disease characterized by soft, weak, and deformed bones. In adults, it leads to osteomalacia, with softening of bones, reduced bone mineral density, and increased risk of osteoporosis. [363, 392]"
                 },
                 {
                     "query": "How does the process of photosynthesis contribute to the food we eat?",
                     "ground_truth": "Photosynthesis is the process by which plants capture energy from the sun and convert it into glucose (a type of sugar). This glucose is stored in plants as starch, which is found in seeds, roots, and tubers. When we eat plant foods containing starch, our bodies digest the starch into glucose, which is then absorbed into our bloodstream and used as an energy source by our cells. (order: 10)\nAdditionally, animals that we eat, such as cows and chickens, also rely on photosynthesis. They eat plants to obtain energy, and this energy is passed on to us when we consume these animals. (order: 9)\nEssentially, every food item we consume can be traced back to photosynthesis, as it forms the basis of the food chain. (order: 9)"
-                }
+                },
             ]
 
     def calculate_rouge(self, hypothesis, reference):
@@ -90,65 +96,54 @@ class RAGEvaluator:
             metrics = {
                 "rouge_scores": rouge_scores,
                 "bleu_score": self.calculate_bleu(response.answer, ground_truth),
-                "semantic_similarity": self.calculate_semantic_similarity(response.answer, ground_truth),
-                "exact_match": self.calculate_exact_match(response.answer, ground_truth),
+                "sem_sim": self.calculate_semantic_similarity(response.answer, ground_truth),
                 "f1_score": self.calculate_f1_score(response.answer, ground_truth),
-                "answer_relevancy": self.calculate_answer_relevancy(query, response.answer)
+                "ans_rel": self.calculate_answer_relevancy(query, response.answer)
             }
 
             results.append({
                 "query": query,
                 "response": response.answer,
                 "ground_truth": ground_truth,
-                **metrics
+                "metrics": metrics
             })
-
-            print(f"Query: {query}")
-            print(f"Response: {response.answer}")
-            if ground_truth:
-                print(f"Ground Truth: {ground_truth}")
-            print(f"Metrics: {metrics}\n")
 
         df = pd.DataFrame(results)
 
-        def wrap_text(text, width=50):
+        def wrap_text(text, width=None):
+            if width is None:
+                width = shutil.get_terminal_size().columns
             if isinstance(text, str):
-                return "\n".join(textwrap.wrap(text, width=width))
+                return "\n".join(textwrap.wrap(text, width=width-20))
             return text
         
         for col in ['query', 'response', 'ground_truth']:
             df[col] = df[col].apply(wrap_text)
-        
-        df['rouge_scores'] = df['rouge_scores'].apply(lambda x: f"ROUGE-1: {x['rouge-1']:.5f}\nROUGE-2: {x['rouge-2']:.5f}\nROUGE-L: {x['rouge-l']:.5f}")
-        
-        numeric_cols = ['bleu_score', 'semantic_similarity', 'exact_match', 'f1_score', 'answer_relevancy']
-        for col in numeric_cols:
-            df[col] = df[col].apply(lambda x: f"{x:.5f}")
-        
-        print(tabulate(df, headers='keys', tablefmt='grid'))
 
 
-        summary_df = df[['rouge_scores', 'bleu_score', 'semantic_similarity', 'exact_match', 'f1_score', 'answer_relevancy']]
-        summary_df['rouge_scores'] = summary_df['rouge_scores'].apply(lambda x: x.replace('\n', ', '))
-        
-        print("\nSummary Results:")
-        print(tabulate(summary_df, headers='keys', tablefmt='simple'))
-        
-        
+        def format_metrics(metrics):
+            formatted_metrics = []
+            for k, v in metrics.items():
+                if k == "rouge_scores":
+                    formatted_metrics.append(f"{k}:")
+                    for rouge_k, rouge_v in v.items():
+                        formatted_metrics.append(f"  {rouge_k}: {rouge_v:.4f}")
+                else:
+                    formatted_metrics.append(f"{k}: {v:.4f}")
+            return "\n".join(formatted_metrics)
+
+
+        df['metrics'] = df['metrics'].apply(format_metrics)
+
+
+        for index, row in df.iterrows():
+            query_df = pd.DataFrame({
+                'evaluation': [row['query'], row['response'], row['ground_truth'], row['metrics']],
+            }, index=['query', 'response', 'ground_truth', 'metrics'])
+
+            print(tabulate(query_df, headers=[], tablefmt='grid'))
+
+
         output_path = os.path.join(os.getcwd(), 'results.csv')
         df.to_csv(output_path, index=False)
         print(f"Results saved to {output_path}")
-
-        avg_scores = {
-            'ROUGE-1': df['rouge_scores'].apply(lambda x: float(x.split('\n')[0].split(': ')[1])).mean(),
-            'ROUGE-2': df['rouge_scores'].apply(lambda x: float(x.split('\n')[1].split(': ')[1])).mean(),
-            'ROUGE-L': df['rouge_scores'].apply(lambda x: float(x.split('\n')[2].split(': ')[1])).mean(),
-            'BLEU': df['bleu_score'].apply(float).mean(),
-            'Semantic Similarity': df['semantic_similarity'].apply(float).mean(),
-            'Exact Match': df['exact_match'].apply(float).mean(),
-            'F1 Score': df['f1_score'].apply(float).mean(),
-            'Answer Relevancy': df['answer_relevancy'].apply(float).mean()
-        }
-        print("\nAverage Scores:")
-        for metric, score in avg_scores.items():
-            print(f"{metric}: {score:.5f}")

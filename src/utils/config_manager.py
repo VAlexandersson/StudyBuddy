@@ -2,7 +2,7 @@ import os
 import yaml
 
 class ConfigManager:
-  def __init__(self, env: str = None, config_path: str = None):# "./Study-Buddy/config.yaml" ):
+  def __init__(self, env:str, config_path: str = None):
 
     self.config_path = config_path or self._retrieve_config_path(env)
 
@@ -26,4 +26,18 @@ class ConfigManager:
 
     current_file_path = os.path.abspath(__file__)
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
-    return os.path.join(project_root, "config", (env or "config") + ".yaml")
+    return os.path.join(project_root, "config", env + ".yaml")
+  
+
+  def set_config(self, yaml_string: str, config_key: str = None):
+    try:
+      new_config = yaml.safe_load(yaml_string)
+      if config_key:
+        if config_key in self._config:
+          self._config[config_key].update(new_config)
+        else:
+          self._config[config_key] = new_config
+      else:
+        self._config.update(new_config)
+    except yaml.YAMLError as e:
+      raise Exception(f"Error loading config from string: {e}")

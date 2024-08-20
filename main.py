@@ -45,9 +45,10 @@ async def init_services():
     
     return services
 
-async def main(mode = 'eval'):
-    config = ConfigManager()
+async def main(mode:str = 'eval', conf:str = None):
+    config = ConfigManager(env=conf or 'dev')
     services = await init_services()
+    
     rag_system = RAGSystem(config=config, **services)
 
     if mode == 'eval':

@@ -1,0 +1,34 @@
+[
+    {
+        "key": "appropriateness_score",
+        "average_score": 8.909090909090908
+    },
+    {
+        "key": "information_usage_score",
+        "average_score": 8.727272727272727
+    },
+    {
+        "key": "relevance_score",
+        "average_score": 9.636363636363637
+    },
+    {
+        "key": "depth_and_elaboration_score",
+        "average_score": 7.2727272727272725
+    },
+    {
+        "key": "accuracy_score",
+        "average_score": 9.636363636363637
+    },
+    {
+        "key": "coherence_score",
+        "average_score": 8.545454545454545
+    },
+    {
+        "key": "overall_score",
+        "average_score": 8.636363636363637
+    },
+    {
+        "key": "essential_completeness_score",
+        "average_score": 9.818181818181818
+    }
+]

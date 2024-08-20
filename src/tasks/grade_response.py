@@ -20,7 +20,6 @@ class GradeResponseTask(Task):
         grade = await binary_grade(user_prompt=user_prompt, system_prompt=system_prompt, text_gen_service=self.text_generation_service)
         
         logger.debug(f"Response Grade: {grade}")
-        print(f"Response Grade: {grade}")
         #TODO: FALLBACK ROUTE, If the response is graded as 'no', we will try again to provide a better response
 
         return context

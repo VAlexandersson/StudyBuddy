@@ -1,0 +1,79 @@
+[
+    {
+        "query": "what is the name of the muscular tube that transports food from the mouth to the stomach and does any chemical digestion occur there",
+        "rouge_l": 0.6666666617283951,
+        "bleu": 0.45443623637127284,
+        "meteor": 0.7585268884703913,
+        "bert_score": 0.9257596731185913
+    },
+    {
+        "query": "what are the two main types of starch and how do they differ in their structure",
+        "rouge_l": 0.25287355955608404,
+        "bleu": 0.028419549417753945,
+        "meteor": 0.2147971360381862,
+        "bert_score": 0.8700553178787231
+    },
+    {
+        "query": "what is the name of the hormone secreted by adipose tissue that helps regulate appetite and how does it work",
+        "rouge_l": 0.4516128984131114,
+        "bleu": 0.1870441036625162,
+        "meteor": 0.4820615931101504,
+        "bert_score": 0.8911203742027283
+    },
+    {
+        "query": "explain the three mechanisms by which fluoride combats tooth decay",
+        "rouge_l": 0.15942028727473223,
+        "bleu": 8.348472855689752e-79,
+        "meteor": 0.17361111111111113,
+        "bert_score": 0.8500621914863586
+    },
+    {
+        "query": "what is the recommended daily intake of protein for athletes and how does this compare to the rda for sedentary adults",
+        "rouge_l": 0.4952380907936509,
+        "bleu": 0.10711388838062348,
+        "meteor": 0.5319647946833956,
+        "bert_score": 0.8943598866462708
+    },
+    {
+        "query": "what is the name of the enzyme produced in the mouth that begins the chemical breakdown of triglycerides",
+        "rouge_l": 0.6046511581179016,
+        "bleu": 0.37184214350816,
+        "meteor": 0.645760963960052,
+        "bert_score": 0.9272605776786804
+    },
+    {
+        "query": "what is the difference between a monounsaturated fatty acid and a polyunsaturated fatty acid",
+        "rouge_l": 0.14285714050177095,
+        "bleu": 6.076398446407336e-79,
+        "meteor": 0.1449275362318841,
+        "bert_score": 0.8440853953361511
+    },
+    {
+        "query": "explain the process of emulsification and why it is important for lipid digestion",
+        "rouge_l": 0.33540372252305084,
+        "bleu": 0.04903382977862074,
+        "meteor": 0.3859640831758034,
+        "bert_score": 0.8693848848342896
+    },
+    {
+        "query": "what are the names of the two hormones involved in blood calcium regulation and which gland produces each",
+        "rouge_l": 0.2752293540712062,
+        "bleu": 0.05259899630112923,
+        "meteor": 0.41902314622529824,
+        "bert_score": 0.8770833611488342
+    },
+    {
+        "query": "why is it important to introduce potentially allergenic foods to babies during their first year of life",
+        "rouge_l": 0.35443037644207664,
+        "bleu": 0.09686207813569611,
+        "meteor": 0.45767062960838056,
+        "bert_score": 0.8939847350120544
+    },
+    {
+        "query": "average",
+        "rouge_l": 0.373838324942198,
+        "bleu": 0.13473508255557726,
+        "meteor": 0.4214307882614653,
+        "bert_score": 0.8843156397342682
+    }
+]

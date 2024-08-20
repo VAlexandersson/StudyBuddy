@@ -5,6 +5,9 @@ class DocumentObject(BaseModel):
   id: str
   document: str
   metadatas: Dict
+  transformed_document: Optional[str] = None
+  relevant: Optional[bool] = None
+  
 
 class RetrievedDocuments(BaseModel):
   documents: List[DocumentObject] = []
