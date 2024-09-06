@@ -1,19 +1,14 @@
-
 TASKS:
-
-  # Query Tasks
   - name: "PreprocessQueryTask"
     class: src.tasks.preprocess_query.PreprocessQueryTask
     services:
       - text_generation
 
-    # Classification Tasks
   - name: "ClassifyQueryTask"
     class: src.tasks.classify_query.ClassifyQueryTask
     services:
       - classification
 
-    # Retrieval Tasks
   - name: "RetrieveDocumentsTask"
     class: src.tasks.retrieve_documents.RetrieveDocumentsTask
     services:
@@ -24,7 +19,6 @@ TASKS:
     class: src.tasks.rerank_documents.ReRankingTask
     services:
       - reranking
-    # Response Tasks
       
   - name: "FilterDocumentsTask"
     class: src.tasks.filter_documents.FilterDocumentsTask
@@ -54,6 +48,7 @@ TASKS:
 
 ROUTING:
 
+# PRE-RETRIEVAL
   PreprocessQueryTask:
     default: "ClassifyQueryTask"
 
@@ -62,26 +57,33 @@ ROUTING:
     command: "RetrieveDocumentsTask"
     default: "GenerateResponseTask"
 
+
+# RETRIEVAL
   RetrieveDocumentsTask:
     default: "ReRankingTask"
-  
+
+
+# POST-RETRIEVAL
   ReRankingTask:
     default: "FilterDocumentsTask"
+
   FilterDocumentsTask:
+    no_context: "GenerateResponseTask"
     default: "TransformRetrievedDocumentsTask"
   
   TransformRetrievedDocumentsTask:
     default: "TwoStepResponseGenerationTask"
 
+
+# GENERATION
   TwoStepResponseGenerationTask:
     default: "EndTask"
-
-
 
   GenerateResponseTask: 
     grade: "GradeResponseTask"
     end: "EndTask"
 
+
+# POST-GENERATION
   GradeResponseTask:
     end: "EndTask"
-

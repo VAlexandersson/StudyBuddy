@@ -2,7 +2,6 @@ from src.utils.logging_utils import logger
 from src.models.context import Context
 from src.models.response import Response
 from src.tasks import Task
-from src.tasks.utils.prompt_library import STANDARD_PROMPT
 from src.interfaces.services.text_generation import TextGenerationService
 from typing import Dict, Any
 
@@ -14,26 +13,18 @@ class GenerateResponseTask(Task):
     async def run(self, context: Context) -> Context:
         print("\n")
         logger.debug(f"\n\tQuery:\n{context.query.text}\n\tLabel:\n{context.query.label}")
-
-        if context.query.label not in ["question", "command"]:
-            system_prompt = "You are Study Buddy. An assistant for students to use in their studies."
-            user_prompt = context.query.text
-        else:
-            context.routing_key = "grade"
-
-            #logger.info(f"\n\tRetrieved Documents:\n {context.retrieved_documents.get_text()}\n")
-            system_prompt = STANDARD_PROMPT["system"]
-            user_prompt = STANDARD_PROMPT["user"]
-            user_prompt = user_prompt.format(
-                query=context.query.text, 
-                retrieved_context=context.retrieved_documents.get_text()
-            )
+        system_prompt = "You are Study Buddy. An assistant for students to use in their studies. You're responses are concise with no fluff."
         
         response_text = await self.text_generation_service.generate_text(
-            user_prompt=user_prompt,
+            user_prompt=context.query.text,
             system_prompt=system_prompt,
             temperature=0.7
         )
+
+        if context.query.label in ["question", "command"]:
+          not_grounded_notice = "[!NOTICE] !RESPONSE NOT GROUNDED! ANSWER MAY NOT BE RELIABLE.[!NOTICE]\n\n"
+          response_text = not_grounded_notice + response_text + "\n\n" + not_grounded_notice
+        
         context.response = Response(text=response_text)
         print(f"\n\tResponse:\n{context.response.text}\n")
         return context

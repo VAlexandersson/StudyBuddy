@@ -32,5 +32,9 @@ class FilterDocumentsTask(Task):
         doc = context.retrieved_documents.documents.pop(index)
         context.retrieved_documents.filtered_documents.append(doc)
         print(f"Removed document at index {index} with id {doc.id}")
+
+      if len(context.retrieved_documents.documents) == 0:
+        print("No relevant documents found.")
+        context.routing_key = "no_context"
         
       return context

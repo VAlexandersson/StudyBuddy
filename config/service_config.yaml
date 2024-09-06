@@ -1,0 +1,25 @@
+text_embedding_service:
+  path: "src.service.text_embedder.sentence_transformer"
+  class: "TextEmbedding"
+  model_id: "BAAI/bge-m3"
+
+text_generation_service:
+  path: "src.service.text_generation.local_transformers"
+  class: "LocalTransformerTextGeneration"
+  model_id: "meta-llama/Meta-Llama-3-8B-Instruct"
+  device: "cuda"
+  attn_implementation: "sdpa"
+
+classification_service:
+  path: "src.service.classification.local_transformers"
+  class: "LocalTransformerClassification"
+  model_id: "MoritzLaurer/deberta-v3-large-zeroshot-v2.0"
+
+reranking_service:
+  path: "src.service.reranking.local_transformers"
+  class: "LocalTransformerReranking"
+  model_id: "BAAI/bge-reranker-v2-m3"
+
+document_retrieval_service:
+  path: "src.service.document_retrieval.chromadb"
+  class: "ChromaDocumentRetrievalService"
