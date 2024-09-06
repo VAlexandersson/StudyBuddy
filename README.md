@@ -30,26 +30,6 @@ The system is composed of several key components:
 5. **Adapters**: Integration with external systems (e.g., ChromaDB)
 6. **User Interface**: Currently implements a command-line interface
 
-## Installation
-
-```bash
-git clone https://github.com/your-repo/study-buddy.git
-cd study-buddy
-pip install -r requirements.txt
-```
-
-## Configuration
-
-Edit the `config.yaml` file in the `config` directory to customize the system's behavior, including model selections and task configurations.
-
-## Usage
-
-Run the main script to start the Study Buddy system:
-
-```bash
-python main.py
-```
-
 ## Project Structure
 
 ```
