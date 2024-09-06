@@ -10,14 +10,13 @@ from src.service.text_generation.local_transformers import LocalTransformerTextG
 from src.service.classification.local_transformers import LocalTransformerClassification
 from src.service.reranking.local_transformers import LocalTransformerReranking
 from src.service.document_retrieval.chromadb import ChromaDocumentRetrievalService
-from evaluation.evaluation import RAGEvaluator
+from archive.all_eval.evaluation import RAGEvaluator
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
 
 async def init_services():
-
     text_embedding_service = TextEmbedding(model_id="BAAI/bge-m3")
     chromadb = ChromaDB(embedding_service=text_embedding_service)
     text_generation_service = LocalTransformerTextGeneration(

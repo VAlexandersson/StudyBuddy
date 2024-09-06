@@ -1,7 +1,6 @@
 from src.tasks import Task
 from src.models.context import Context
 from src.interfaces.services.text_generation import TextGenerationService
-from src.interfaces.services.document_retrieval import DocumentRetrievalService
 from typing import Dict, Any
 
 SYSTEM_PROMPT = """You are Study-Buddy. An educational chatbot that will aid students in their studies.
@@ -36,11 +35,10 @@ The instructions should be without any noise, like leading or trailing "redundan
 
 WRITING_INSTRUCTIONS = "Generate a response that focuses on the query that is detailed, cohesive, and grounded in the provided documents. Take your earlier reflection into consideration you made earlier, in the THINKING step, that can be found enclosed with the XML-tags `<THINKING>`."
 
-class TwoStepResponseGeneration(Task):
+class TwoStepResponseGenerationTask(Task):
   def __init__(self, name: str, services: Dict[str, Any]):
       super().__init__(name, services)
       self.text_generation_service: TextGenerationService = services['text_generation']
-      self.document_retrieval_service: DocumentRetrievalService = services['document_retrieval']
 
 
   async def run(self, context: Context) -> Context:

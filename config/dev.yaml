@@ -7,44 +7,40 @@ TASKS:
     services:
       - text_generation
 
-  - name: "ReformulateQueryTask"
-    class: src.tasks.reformulate_query.ReformulateQueryTask
-    services:
-      - text_generation
-
-  - name: "DecomposeQueryTask"
-    class: src.tasks.decompose_query.DecomposeQueryTask
-    services:
-      - text_generation
-
     # Classification Tasks
   - name: "ClassifyQueryTask"
     class: src.tasks.classify_query.ClassifyQueryTask
     services:
       - classification
 
-  - name: "ClassifyMultistepQueryTask"
-    class: src.tasks.classify_multistep_query.ClassifyMultistepQueryTask
-    services:
-      - text_generation
-
-
     # Retrieval Tasks
   - name: "RetrieveDocumentsTask"
     class: src.tasks.retrieve_documents.RetrieveDocumentsTask
     services:
       - document_retrieval
-      
-  - name: "FilterDocumentsTask"
-    class: src.tasks.filter_documents.FilterDocumentsTask
-    services:
-      - text_generation
+
 
   - name: "ReRankingTask"
     class: src.tasks.rerank_documents.ReRankingTask
     services:
       - reranking
     # Response Tasks
+      
+  - name: "FilterDocumentsTask"
+    class: src.tasks.filter_documents.FilterDocumentsTask
+    services:
+      - text_generation
+
+  - name: "TransformRetrievedDocumentsTask"
+    class: src.tasks.transform_retrieved_documents.TransformRetrievedDocumentsTask
+    services:
+      - text_generation
+
+  - name: "TwoStepResponseGenerationTask"
+    class: src.tasks.two_step_response_generation.TwoStepResponseGenerationTask
+    services:
+      - text_generation
+
   - name: "GenerateResponseTask"
     class: src.tasks.generate_response.GenerateResponseTask
     services:
@@ -55,12 +51,6 @@ TASKS:
     services:
       - text_generation
 
-
-  - name: "ComplexQueryAnalysisTask"
-    class: src.tasks.complex_query_analysis.ComplexQueryAnalysisTask
-    services:
-      - text_generation
-      - document_retrieval
 
 ROUTING:
 
@@ -74,16 +64,18 @@ ROUTING:
 
   RetrieveDocumentsTask:
     default: "ReRankingTask"
-  ReRankingTask:
-    default: "ComplexQueryAnalysisTask"
   
-  ComplexQueryAnalysisTask:
-    default: "GradeResponseTask"
-
-
-
+  ReRankingTask:
+    default: "FilterDocumentsTask"
   FilterDocumentsTask:
-    default: "ReRankingTask"
+    default: "TransformRetrievedDocumentsTask"
+  
+  TransformRetrievedDocumentsTask:
+    default: "TwoStepResponseGenerationTask"
+
+  TwoStepResponseGenerationTask:
+    default: "EndTask"
+
 
 
   GenerateResponseTask: 
@@ -92,3 +84,4 @@ ROUTING:
 
   GradeResponseTask:
     end: "EndTask"
+

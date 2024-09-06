@@ -1,45 +1,36 @@
-from src.utils.logging_utils import logger
 from src.tasks import Task
-from src.tasks.tools.binary_grade import binary_grade
-from src.models.context import Context 
+from src.models.context import Context
 from src.interfaces.services.text_generation import TextGenerationService
 from typing import Dict, Any
+from src.tasks.tools.binary_grade_document_relevance import binary_grade_document_relevance
 
 class FilterDocumentsTask(Task):
   def __init__(self, name: str, services: Dict[str, Any]):
-    super().__init__(name, services)
-    self.text_generation_service: TextGenerationService = services['text_generation']
+      super().__init__(name, services)
+      self.text_generation_service: TextGenerationService = services['text_generation']
+
 
   async def run(self, context: Context) -> Context:
-    #rel_user_prompt, rel_system_prompt = RELEVANCE_PROMPT
+      print(f"QUERY: {context.query.text}")
 
-    system_prompt = """Assess if the retrieved document contains information directly relevant to answering the query: {context.query.text}.
+      query = context.query.text
 
-Give a simple 'yes' or 'no' answer:
-- 'yes' if the document contains specific information about the key aspect of the query
-- 'no' if the document doesn't address these aspects or only mentions them tangentially
+      indices_to_remove = []
 
-Respond with only this JSON format:
-{"score": "yes"} or {"score": "no"}
-"""
-    user_prompt= "Retrieved document:\n{doc}"
+      for i, doc in enumerate(context.retrieved_documents.documents):
+        print(f"DOCUMENT: {doc.id}\n{doc.document}")
 
+        grade = await binary_grade_document_relevance(doc, query, self.text_generation_service)
 
-    for doc in context.retrieved_documents.documents:
-      grade = await binary_grade(
-        user_prompt=user_prompt.format(doc=doc), #f"Retrieved document: \n\n {doc} \n\nQuery: {context.query.text}\n",
-        system_prompt=system_prompt, 
-        text_gen_service=self.text_generation_service
-      )
+        print(f"GRADE: {grade}")
 
-      context.retrieved_documents.ignore.append(grade)
+        if grade == 'no':
+          print(f"Document {doc.id} is not relevant to the query.")
+          indices_to_remove.append(i)
+
+      for index in sorted(indices_to_remove, reverse=True):
+        doc = context.retrieved_documents.documents.pop(index)
+        context.retrieved_documents.filtered_documents.append(doc)
+        print(f"Removed document at index {index} with id {doc.id}")
         
-      print(f"Grade: {grade} - Doc ID: {doc.id}")
-    
-    no_indices = [i for i, x in enumerate(context.retrieved_documents.ignore) if x == 'no']
-    context.retrieved_documents.filtered_documents = [context.retrieved_documents.documents[i] for i in no_indices]
-    context.retrieved_documents.documents = [doc for i, doc in enumerate(context.retrieved_documents.documents) if i not in no_indices]
-
-    logger.debug(f"Filtered Document IDs: {[doc.id for doc in context.retrieved_documents.filtered_documents]}")
-
-    return context
+      return context
