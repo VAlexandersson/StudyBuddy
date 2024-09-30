@@ -2,7 +2,9 @@
 
 ## Overview
 
-Study Buddy is a sophisticated Retrieval-Augmented Generation (RAG) system designed to assist students in their studies. It combines advanced natural language processing techniques with a modular architecture to provide accurate and context-aware responses to user queries.
+Study Buddy is a Retrieval-Augmented Generation (RAG) system designed to assist students in their studies. It combines advanced natural language processing techniques with a modular architecture to provide accurate and context-aware responses to user queries.
+
+It also demostrates that LLM inference doesn't need to be more complicated then a function or REST call by not locking itself behind a "do-it-all" framework.
 
 ## Key Features
 
