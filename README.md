@@ -1,4 +1,4 @@
-# Study Buddy: A Modular RAG System
+# Study Buddy: Safe and fact based learning in Education
 
 ## Overview
 
